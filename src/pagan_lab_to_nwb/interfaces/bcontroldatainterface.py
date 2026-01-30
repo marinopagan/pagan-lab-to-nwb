@@ -197,8 +197,12 @@ class BControlBehaviorInterface(BaseDataInterface):
             # 'TaskSwitch6 - on rig brodyrigws32.princeton.edu : Marino, P131.  Started at 11:41, Ended at 13:19'
             # extract the datetime from "Started at" from the title and date from "SavingSection_SaveTime"
             match = re.search(r"Started at (\d{2}:\d{2})", protocol_title)
+            if not match:
+                raise ValueError(
+                    f"Could not extract session start time from protocol title: '{protocol_title}'. The expected format is 'Started at HH:MM'."
+                )
             # lookup file save date and combine with the time from the protocol title
-            if "SavingSection_SaveTime" in self.saved and match:
+            if "SavingSection_SaveTime" in self.saved:
                 save_time = self.saved["SavingSection_SaveTime"]  # '15-Aug-2019 13:19:41'
                 time_str = match.group(1)
                 # Extract date part (e.g., '15-Aug-2019') from save_time
