@@ -95,7 +95,15 @@ class BControlBehaviorInterface(BaseDataInterface):
                 "The saved_history does not contain 'ProtocolsSection_parsed_events'. "
                 "Please ensure the BControl data file is correctly formatted."
             )
+        num_completed_trials = self.saved.get("ProtocolsSection_n_completed_trials", None)
+        if int(num_completed_trials) == 0:
+            raise ValueError(
+                "Expected at least 1 completed trial, got 0 for 'ProtocolsSection_n_completed_trials'."
+                "Please check the BControl data file."
+            )
         parsed_events = self.saved_history["ProtocolsSection_parsed_events"]
+        if int(num_completed_trials) == 1 and isinstance(parsed_events, dict):
+            parsed_events = [parsed_events]
         if not isinstance(parsed_events, list):
             raise ValueError(
                 f"Expected 'ProtocolsSection_parsed_events' to be a list, but got {type(parsed_events)}. "
