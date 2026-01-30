@@ -255,7 +255,8 @@ class BControlBehaviorInterface(BaseDataInterface):
             states = trial_events["states"]
             state_names = state_types.state_name[:]
             for state_name in state_names:
-                state_times = states[state_name]
+                # not all state types present in each trial
+                state_times = states[state_name] if state_name in states else []
                 if len(state_times) == 0:
                     continue
 
@@ -266,7 +267,7 @@ class BControlBehaviorInterface(BaseDataInterface):
                     starting_state_times = state_times[not_nan]
                     if len(starting_state_times) > 2:
                         raise ValueError(
-                            f"Unexpected shape for starting state '{state_name}': {state_times.shape}. "
+                            f"Unexpected shape for starting state '{state_name}', shape ({state_times.shape}) values of {state_times[:]}. "
                             f"Expected shape is (2,) or (2, 2) with NaNs handled."
                         )
                     start_time, stop_time = starting_state_times
