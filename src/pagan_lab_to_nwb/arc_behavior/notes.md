@@ -401,8 +401,6 @@ One row per session-level (scalar or short-array) parameter.
 - No `StimulusSection_ThisStimulus` → no stimulus columns added.
 - `SessionDefinition_*` fields are present; GUI-state fields are excluded (see exclusion list above).
 - Scientific `SessionDefinition_*` fields (stage number, trial counts, training stages) are stored in `task.task_arguments`.
-- Protocol title format is older: `'PBups: experimenter, ratname, Ended at HH:MM'` (no "Started at").
-  The session start time falls back to: 1) "Ended at" time, 2) `SavingSection_SaveTime`.
 
 ### Session start time extraction (all protocols)
 
@@ -411,11 +409,13 @@ protocol_title = saved["ProtocolsSection_prot_title"]
                   ↓
 Search "Started at HH:MM"   →  success
                   ↓ (not found)
-Search "Ended at HH:MM"     →  success (warns: using end time as start)
-                  ↓ (not found)
-Use SavingSection_SaveTime  →  success (warns: using save time)
-                  ↓
-date from SavingSection_SaveTime + time above → datetime.strptime → session_start_time
+raise ValueError / skip session  ← no fallback; session is excluded
+```
+
+If "Started at HH:MM" is found:
+
+```
+date from SavingSection_SaveTime + "Started at" time → datetime.strptime → session_start_time
                   ↓
 replace(tzinfo=ZoneInfo("Europe/London"))   ← hard-coded timezone
 ```
