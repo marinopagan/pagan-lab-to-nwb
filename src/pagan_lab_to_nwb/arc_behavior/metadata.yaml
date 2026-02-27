@@ -44,6 +44,7 @@ Subject:
   sex: M  # One of M, F, U, or O
   # genotype: TBD  # e.g. "C57BL/6J"
 
+# The metadata for the tables defined in ndx-structured-behavior
 Behavior:
   StateTypesTable:
     description: Contains the name of the states in the task.
@@ -59,3 +60,50 @@ Behavior:
     description: Contains the start and stop times of each passive event (e.g. stimulus, reward delivery) in the task.
   TrialsTable:
       description: Contains the start and stop times of each trial in the task.
+      columns:
+        - name: crosstalk_dir
+          description: The ratio to which the pulse is played from the left or right speaker. A value of 1 means the pulse is played only from the right side, and a value of 0 means the pulse is played equally from both speakers.
+        - name: crosstalk_freq
+          description: The ratio to which the pulses are being modulated in frequency.
+        - name: bup_width
+          description: The duration of a single pulse in milliseconds.
+        - name: bup_ramp
+          description: The duration of the ramp of a single pulse in milliseconds.
+        - name: vol_low
+          description: The multiplier of the volume of the low frequency tone.
+        - name: vol_hi
+          description: The multiplier of the volume of the high frequency tone.
+        - name: vol
+          description: The overall volume multiplier of the sound stimulus.
+        - name: gamma_dir
+          description: Log ratio of average right vs. left pulse rates per second; zero means equal, positive means more pulses come from the right speaker, negative means more left.
+        - name: gamma_freq
+          description: Log ratio of average high vs. low frequency pulses per second; zero means equal, positive means more high frequency pulses, negative means more low frequency pulses.
+        - name: duration
+          description: The duration of the sound stimulus in seconds.
+        - name: freq_lo
+          description: The frequency of the low frequency pulse in Herz.
+        - name: freq_hi
+          description: The frequency of the high frequency pulse in Herz.
+
+
+# The metadata for the tables defined in ndx-events
+Stimulus:
+  EventsTable:
+    name: stimulus_events
+    description: Contains the stimulus presentation times for each stimulus type.
+    columns:
+      - name: stimulus_type
+        description: The types of stimuli presented during the task. In this task, the stimuli are auditory pulses with different frequencies and spatial locations.
+  MeaningsTable:
+    name: stimulus_meanings
+    description: Contains the meanings of the stimulus types.
+    columns:
+      - name: left_hi
+        description: The times relative to stimulus starts when pulses were played from the left speaker and happen to be high frequency.
+      - name: right_hi
+        description: The times relative to stimulus starts when pulses were played from the right speaker and happen to be high frequency.
+      - name: left_lo
+        description: The times relative to stimulus starts when pulses were played from the left speaker and happen to be low frequency.
+      - name: right_lo
+        description: The times relative to stimulus starts when pulses were played from the right speaker and happen to be low frequency.
