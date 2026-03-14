@@ -111,8 +111,10 @@ NWBFile
 │   └── description       ← from metadata.yaml
 │
 ├── devices
-│   └── BControl (Device)
-│       └── manufacturer  ← "Example Manufacturer" (default)
+│   ├── BControl (Device)
+│   │   └── manufacturer  ← "Example Manufacturer" (default)
+│   └── Cerebro (Device)                          ← opto sessions only
+│       └── manufacturer  ← "Karpova Lab"
 │
 ├── lab_meta_data
 │   └── task (Task)                          ← ndx-structured-behavior
@@ -146,6 +148,24 @@ NWBFile
 │           ├── value       [VectorData/text]     ← state name when wave started
 │           └── action_type [DynamicTableRegion]  → ActionTypesTable row index
 │
+├── ogen_sites                                    ← opto sessions only
+│   ├── opto_site_left (OptogeneticStimulusSite)
+│   │   ├── excitation_lambda  ← 473.0 nm (ChR2)
+│   │   └── location           ← "FOF, left hemisphere"
+│   └── opto_site_right (OptogeneticStimulusSite)
+│       ├── excitation_lambda  ← 473.0 nm
+│       └── location           ← "FOF, right hemisphere"
+│
+├── stimulus                                      ← opto sessions only
+│   ├── optogenetic_series_left (OptogeneticSeries)
+│   │   ├── data        ← power (Cerebro units, TODO: confirm mW conversion)
+│   │   ├── timestamps  ← step-function: [t_on, t_off, ...] pairs
+│   │   └── site        → opto_site_left
+│   └── optogenetic_series_right (OptogeneticSeries)
+│       ├── data        ← power (Cerebro units)
+│       ├── timestamps  ← step-function: [t_on, t_off, ...] pairs
+│       └── site        → opto_site_right
+│
 └── trials (TrialsTable)                      ← ndx-structured-behavior
     ├── start_time     [VectorData/float64]   ← state_0 enter time
     ├── stop_time      [VectorData/float64]   ← state_0 exit time
@@ -171,10 +191,11 @@ NWBFile
     ├── crosstalk_freq [VectorData/float64]   ← frequency crosstalk (skipped if dict)
     │
     │   ── Pulse time ragged columns (TaskSwitch only) ──
-    ├── left_hi        [VectorData/float64 + VectorIndex]  ← absolute pulse times
-    ├── right_hi       [VectorData/float64 + VectorIndex]
-    ├── left_lo        [VectorData/float64 + VectorIndex]
-    ├── right_lo       [VectorData/float64 + VectorIndex]
+    ├── cpoke_start_time [VectorData/float64]  ← absolute cpoke onset (NaN if rat didn't poke)
+    ├── left_hi        [VectorData/float64 + VectorIndex]  ← relative pulse times (seconds from cpoke)
+    ├── right_hi       [VectorData/float64 + VectorIndex]  ← relative pulse times (seconds from cpoke)
+    ├── left_lo        [VectorData/float64 + VectorIndex]  ← relative pulse times (seconds from cpoke)
+    ├── right_lo       [VectorData/float64 + VectorIndex]  ← relative pulse times (seconds from cpoke)
     │
     └── {ProtocolParam}_* [VectorData]        ← per-trial task parameters from saved_history
 ```
@@ -188,7 +209,7 @@ NWBFile
 | BControl field | NWB location | Notes |
 |---|---|---|
 | `SavingSection_SaveTime` | `NWBFile.session_start_time` (date part) | Combined with "Started at" from protocol title |
-| `ProtocolsSection_prot_title` | `NWBFile.session_start_time` (time part) | Regex `Started at HH:MM`; falls back to `Ended at HH:MM` or SaveTime |
+| `ProtocolsSection_prot_title` | `NWBFile.session_start_time` (time part) | Regex `Started at HH:MM`; session excluded (ValueError) if not found |
 | `CommentsSection_comments` | `NWBFile.notes` | Joined as newline-separated string |
 | `CommentsSection_overall_comments` | `NWBFile.notes` (appended) | Prefixed with "Overall comments:" |
 
@@ -226,10 +247,11 @@ The routing depends on array length relative to trial count:
 | `ProtocolsSection_parsed_events[i]["pokes"]` | `task_recording.events` (EventsTable) | Port pokes, sorted by timestamp |
 | `ProtocolsSection_parsed_events[i]["waves"]` | `task_recording.actions` (ActionsTable) | Sounds/outputs, sorted by timestamp |
 | `StimulusSection_ThisStimulus[i]` scalar params | `trials.*` columns | See stimulus scalar columns above |
-| `StimulusSection_ThisStimulus[i].left_hi` | `trials.left_hi` (ragged) | Absolute times = cpoke_start + relative offset |
+| `StimulusSection_ThisStimulus[i].left_hi` | `trials.left_hi` (ragged) | Relative times in seconds from cpoke onset; add `cpoke_start_time` for absolute |
 | `StimulusSection_ThisStimulus[i].right_hi` | `trials.right_hi` (ragged) | Same |
 | `StimulusSection_ThisStimulus[i].left_lo` | `trials.left_lo` (ragged) | Same |
 | `StimulusSection_ThisStimulus[i].right_lo` | `trials.right_lo` (ragged) | Same |
+| `parsed_events[i].states.cpoke[0]` | `trials.cpoke_start_time` | Absolute cpoke onset (seconds); NaN for trials with no cpoke |
 | `StimulusSection_ThisStimulus[i].freqs` | `trials.freq_lo`, `trials.freq_hi` | Split: freqs[0] → freq_lo, freqs[1] → freq_hi |
 
 ### Excluded fields
@@ -254,6 +276,7 @@ The routing depends on array length relative to trial count:
 | `SessionDefinition_var_hdr`, `_var_names` | GUI variable headers |
 | `SessionDefinition_list_hdr`, `_subparam_hdr` | GUI list headers |
 | `SessionDefinition_last_change`, `_old_style_parsing_flag` | Internal BControl bookkeeping |
+| `SoundInterface_*` (~150 keys) | Feedback-sound configuration (hit/error/timeout/violation tones); not scientifically relevant per lab |
 
 ### Protocol-specific fields (`SessionDefinition_*`, PBups only)
 
@@ -392,7 +415,8 @@ One row per session-level (scalar or short-array) parameter.
 
 - `StimulusSection_ThisStimulus` is present in `saved_history` → stimulus columns are added to `trials`.
 - Per-trial pulse times (`left_hi`, `right_hi`, `left_lo`, `right_lo`) are stored as ragged columns.
-- Pulse times are absolute (seconds from session start): `pulse_time = relative_time + cpoke_start_time`.
+- Pulse times are stored as **relative times in seconds from cpoke onset** (exactly as in the BControl file) for all trials.  To convert to absolute session time: `abs_time = cpoke_start_time + pulse_time`.
+- `cpoke_start_time` is a dedicated trial column (float64, NaN when the rat did not poke). For error/invalid trials the relative pulse times are still stored because the stimulus was generated and the data is scientifically valuable.
 - `crosstalk_freq` is sometimes a dict `{'lpos': 359}` rather than a scalar → skipped with a warning.
 - `freqs` column (if present) is split into `freq_lo` and `freq_hi` before adding to trials.
 
@@ -404,6 +428,11 @@ One row per session-level (scalar or short-array) parameter.
 
 ### Session start time extraction (all protocols)
 
+**Decision (confirmed with Marino, 2026-03-13):** Sessions whose `ProtocolsSection_prot_title`
+does not contain the substring `"Started at"` are excluded from the conversion. These are old
+BControl files from early training sessions that lack reliable start-time metadata and are not
+scientifically relevant. No fallback to `"Ended at"` or `SavingSection_SaveTime` is used.
+
 ```
 protocol_title = saved["ProtocolsSection_prot_title"]
                   ↓
@@ -411,6 +440,9 @@ Search "Started at HH:MM"   →  success
                   ↓ (not found)
 raise ValueError / skip session  ← no fallback; session is excluded
 ```
+
+`dataset_to_nwb` catches the `ValueError` and writes it to the error log (`conversion_errors.log`),
+so skipped sessions are traceable.
 
 If "Started at HH:MM" is found:
 
@@ -576,3 +608,26 @@ TrialsTable                    StatesTable
 - [Roth et al., 2024, bioRxiv](https://www.biorxiv.org/content/10.1101/2024.01.08.574597v1.full)
 - [NeuroConv](https://github.com/catalystneuro/neuroconv)
 - [NWB (Neurodata Without Borders)](https://www.nwb.org/)
+
+---
+
+## 10. Open Questions
+
+### Optogenetics: power unit conversion (TODO)
+
+The `OptogeneticSeries` in the NWB file stores laser power in raw **Cerebro internal units**
+(integer scale, `max_left/right_opto_power = 800` observed in the data).  The paper states
+stimulation was delivered at **25 mW**.
+
+**Question for Marino:** What is the conversion from Cerebro internal units to mW?
+Options:
+- Is `800` the maximum in mW (so values are already in mW / 1000)?
+- Is there a fixed conversion factor (e.g., `value / 800 * 25 mW`)?
+- Are the stored values the actual mW delivered?
+
+Once confirmed, update in `bcontroldatainterface.py`:
+- The `unit` argument in both `OptogeneticSeries` objects (currently `"Cerebro units (TODO: confirm mW conversion)"`)
+- Optionally apply a conversion factor to the `data` array so values are in watts (NWB convention is SI)
+
+**Relevant code:** `BControlBehaviorInterface.add_optogenetic_series_to_nwbfile()` in
+`src/pagan_lab_to_nwb/interfaces/bcontroldatainterface.py`
