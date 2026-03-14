@@ -134,14 +134,6 @@ def session_to_nwb(
         overwrite=overwrite,
     )
 
-    # read back nwbfile_path to verify
-    # Read the NWB file and verify the data
-    with NWBHDF5IO(nwbfile_path) as io:
-        read_nwbfile = io.read()
-        print(read_nwbfile.trials[:].head())
-
-        # print(read_nwbfile.trials["left_hi"])  # Output the data
-
     return nwbfile_path
 
 
