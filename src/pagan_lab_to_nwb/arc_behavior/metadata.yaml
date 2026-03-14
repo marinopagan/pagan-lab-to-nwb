@@ -2,8 +2,8 @@ NWBFile:
   keywords:
     - decision making
     - context-dependent behavior
-#  related_publications:
-#    https://doi.org/### or link to APA or MLA citation of the publication
+  related_publications:
+    - doi:10.1038/s41586-024-08433-6
   experiment_description: |
     In this study rats were trained to perform a task requiring context-dependent selection
     and accumulation of sensory evidence. The task was performed in a behavioural box consisting of three
@@ -36,13 +36,13 @@ NWBFile:
   lab: Pagan
   experimenter:
     - Pagan, Marino
+    - Tang, Vincent D.
 
 Subject:
   species: Rattus norvegicus
-  description: All subjects were male Long-Evans rats between the ages of 6 and 24 months.
-  age: P6M/P2Y  # in ISO 8601, such as "P1W2D"
-  sex: M  # One of M, F, U, or O
-  # genotype: TBD  # e.g. "C57BL/6J"
+  description: Long-Evans rat, wild-type.
+  strain: Long Evans
+  # sex and date_of_birth are set per-subject from rat_information.xlsx in convert_session.py
 
 # The metadata for the tables defined in ndx-structured-behavior
 Behavior:
@@ -85,25 +85,3 @@ Behavior:
           description: The frequency of the low frequency pulse in Herz.
         - name: freq_hi
           description: The frequency of the high frequency pulse in Herz.
-
-
-# The metadata for the tables defined in ndx-events
-Stimulus:
-  EventsTable:
-    name: stimulus_events
-    description: Contains the stimulus presentation times for each stimulus type.
-    columns:
-      - name: stimulus_type
-        description: The types of stimuli presented during the task. In this task, the stimuli are auditory pulses with different frequencies and spatial locations.
-  MeaningsTable:
-    name: stimulus_meanings
-    description: Contains the meanings of the stimulus types.
-    columns:
-      - name: left_hi
-        description: The times relative to stimulus starts when pulses were played from the left speaker and happen to be high frequency.
-      - name: right_hi
-        description: The times relative to stimulus starts when pulses were played from the right speaker and happen to be high frequency.
-      - name: left_lo
-        description: The times relative to stimulus starts when pulses were played from the left speaker and happen to be low frequency.
-      - name: right_lo
-        description: The times relative to stimulus starts when pulses were played from the right speaker and happen to be low frequency.
