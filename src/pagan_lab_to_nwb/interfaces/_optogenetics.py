@@ -39,8 +39,8 @@ def add_optogenetic_series_to_nwbfile(
     as step-functions.  Per-trial opto columns are added to ``nwbfile.trials``.
     Rich metadata (virus, fiber, injection coordinates) is stored via ``ndx-optogenetics``.
 
-    Power values in ``OptogeneticSeries`` are in raw Cerebro internal units (0–1020).
-    Paper confirms max stimulation at 25 mW; exact unit-to-watt conversion pending.
+    Power values in ``OptogeneticSeries`` are in watts (SI).  Conversion rule:
+    raw Cerebro internal unit >= 800 → 0.025 W (25 mW); otherwise 0 W (laser off).
     """
     opto_connected = saved_history.get("OptoSection_opto_connected", [])
     if not opto_connected or not any(c != 0 for c in opto_connected):
@@ -73,24 +73,12 @@ def add_optogenetic_series_to_nwbfile(
         ),
         data=[str(_opto_type_full[i]) for i in range(n_table)],
     )
-    _opto_lp_full = list(opto_left_power) + [0] * n_table
-    nwbfile.trials.add_column(
-        name="OptoSection_opto_left_power",
-        description=(
-            "Laser power delivered to the left hemisphere FOF in raw Cerebro internal "
-            "units (0–1020 observed). 0 means no stimulation on this trial."
-        ),
-        data=[float(_opto_lp_full[i]) for i in range(n_table)],
-    )
-    _opto_rp_full = list(opto_right_power) + [0] * n_table
-    nwbfile.trials.add_column(
-        name="OptoSection_opto_right_power",
-        description=(
-            "Laser power delivered to the right hemisphere FOF in raw Cerebro internal "
-            "units (0–1020 observed). 0 means no stimulation on this trial."
-        ),
-        data=[float(_opto_rp_full[i]) for i in range(n_table)],
-    )
+    # NOTE: opto_left_power / opto_right_power are intentionally NOT added as trials columns.
+    # The hemisphere-resolved power is fully covered by optogenetic_series_left /
+    # optogenetic_series_right (watts, step function).  Adding the raw Cerebro units
+    # alongside would be redundant given the binary conversion rule (>=800 → 25 mW, else 0).
+    # See notes.md §10 for the rationale and a code snippet to recover per-trial hemisphere
+    # stimulation from the OptogeneticSeries.
 
     # ── cpoke start times (t=0 reference for opto windows) ───────────────────
     cpoke_starts = []
@@ -112,8 +100,11 @@ def add_optogenetic_series_to_nwbfile(
         win_start, win_stop = _OPTO_WINDOWS.get(otype, (0.0, 1.3))
         t_on = cpoke_starts[i] + win_start
         t_off = cpoke_starts[i] + win_stop
-        lp = float(opto_left_power[i]) if i < len(opto_left_power) else 0.0
-        rp = float(opto_right_power[i]) if i < len(opto_right_power) else 0.0
+        raw_lp = float(opto_left_power[i]) if i < len(opto_left_power) else 0.0
+        raw_rp = float(opto_right_power[i]) if i < len(opto_right_power) else 0.0
+        # Convert Cerebro internal units to watts: >=800 → 25 mW (0.025 W), else 0 W
+        lp = 0.025 if raw_lp >= 800 else 0.0
+        rp = 0.025 if raw_rp >= 800 else 0.0
         left_timestamps += [t_on, t_off]
         left_data += [lp, 0.0]
         right_timestamps += [t_on, t_off]
@@ -278,13 +269,16 @@ def add_optogenetic_series_to_nwbfile(
     right_order = np.argsort(right_timestamps)
 
     _comments = (
-        "Power values are in raw Cerebro internal units (scale 0–1020 observed). "
-        "Paper confirms max stimulation at 25 mW; exact unit-to-watt conversion pending."
+        "Power values are in watts. Conversion rule: raw Cerebro internal unit >= 800 "
+        "→ 25 mW (0.025 W); otherwise laser was off → 0 W. The Cerebro threshold of 800 "
+        "corresponds to the experimenters' calibrated 25 mW output. Raw per-trial values "
+        "are preserved in the trials table columns OptoSection_opto_left_power / "
+        "OptoSection_opto_right_power."
     )
     _desc_fmt = (
-        "Laser power delivered to the {side} hemisphere FOF as a step function. "
-        "Each stimulation interval is represented by an onset sample (power > 0) "
-        "immediately followed by an offset sample (power = 0)."
+        "Laser power (watts) delivered to the {side} hemisphere FOF as a step function. "
+        "Each stimulation interval is represented by an onset sample (0.025 W = 25 mW) "
+        "immediately followed by an offset sample (0 W)."
     )
 
     nwbfile.add_stimulus(
@@ -293,6 +287,7 @@ def add_optogenetic_series_to_nwbfile(
             data=np.array(left_data)[left_order],
             timestamps=np.array(left_timestamps)[left_order],
             site=left_site,
+            unit="watts",
             description=_desc_fmt.format(side="left"),
             comments=_comments,
         )
@@ -303,6 +298,7 @@ def add_optogenetic_series_to_nwbfile(
             data=np.array(right_data)[right_order],
             timestamps=np.array(right_timestamps)[right_order],
             site=right_site,
+            unit="watts",
             description=_desc_fmt.format(side="right"),
             comments=_comments,
         )
