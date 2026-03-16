@@ -158,11 +158,13 @@ NWBFile
 │
 ├── stimulus                                      ← opto sessions only
 │   ├── optogenetic_series_left (OptogeneticSeries)
-│   │   ├── data        ← power (Cerebro units, TODO: confirm mW conversion)
+│   │   ├── data        ← power in watts: 0.025 W if raw >= 800, else 0.0 W
+│   │   ├── unit        ← "watts"
 │   │   ├── timestamps  ← step-function: [t_on, t_off, ...] pairs
 │   │   └── site        → opto_site_left
 │   └── optogenetic_series_right (OptogeneticSeries)
-│       ├── data        ← power (Cerebro units)
+│       ├── data        ← power in watts: 0.025 W if raw >= 800, else 0.0 W
+│       ├── unit        ← "watts"
 │       ├── timestamps  ← step-function: [t_on, t_off, ...] pairs
 │       └── site        → opto_site_right
 │
@@ -196,6 +198,12 @@ NWBFile
     ├── right_hi       [VectorData/float64 + VectorIndex]  ← relative pulse times (seconds from cpoke)
     ├── left_lo        [VectorData/float64 + VectorIndex]  ← relative pulse times (seconds from cpoke)
     ├── right_lo       [VectorData/float64 + VectorIndex]  ← relative pulse times (seconds from cpoke)
+    │
+    │   ── Optogenetics columns (opto sessions only) ──
+    ├── OptoSection_opto_connected [VectorData/int]    ← 1 = Cerebro connected, 0 = not
+    ├── OptoSection_opto_type      [VectorData/text]   ← 'Full Trial' / 'First Half' / 'Second Half'
+    │   NOTE: opto_left_power / opto_right_power are NOT stored here — see §10 for rationale
+    │         and how to recover per-trial hemisphere stimulation from OptogeneticSeries.
     │
     └── {ProtocolParam}_* [VectorData]        ← per-trial task parameters from saved_history
 ```
@@ -611,23 +619,106 @@ TrialsTable                    StatesTable
 
 ---
 
-## 10. Open Questions
+## 10. Design Decisions & Resolved Questions
 
-### Optogenetics: power unit conversion (TODO)
+### Optogenetics: power unit conversion (RESOLVED 2026-03-16)
 
-The `OptogeneticSeries` in the NWB file stores laser power in raw **Cerebro internal units**
-(integer scale, `max_left/right_opto_power = 800` observed in the data).  The paper states
-stimulation was delivered at **25 mW**.
+**Answer from Marino:** The Cerebro internal unit does not have a fixed linear conversion to
+mW — the threshold value varied session-to-session because the laser was glued to the fiber
+optic implant and the exact output could not be measured precisely. The experimenters
+identified a session-specific threshold for 25 mW output.
 
-**Question for Marino:** What is the conversion from Cerebro internal units to mW?
-Options:
-- Is `800` the maximum in mW (so values are already in mW / 1000)?
-- Is there a fixed conversion factor (e.g., `value / 800 * 25 mW`)?
-- Are the stored values the actual mW delivered?
+**Rule implemented:**
+- Raw Cerebro value **>= 800** → laser was on → **25 mW (0.025 W)**
+- Raw Cerebro value **< 800** → laser was off → **0 mW (0 W)**
 
-Once confirmed, update in `bcontroldatainterface.py`:
-- The `unit` argument in both `OptogeneticSeries` objects (currently `"Cerebro units (TODO: confirm mW conversion)"`)
-- Optionally apply a conversion factor to the `data` array so values are in watts (NWB convention is SI)
+**Implementation in `interfaces/_optogenetics.py`:**
+- `OptogeneticSeries.data` stores values in **watts** (`0.025` or `0.0`)
+- `OptogeneticSeries.unit = "watts"` (NWB SI convention)
 
-**Relevant code:** `BControlBehaviorInterface.add_optogenetic_series_to_nwbfile()` in
-`src/pagan_lab_to_nwb/interfaces/bcontroldatainterface.py`
+---
+
+### Optogenetics: why `opto_left/right_power` are NOT trials columns (DECIDED 2026-03-16)
+
+**Decision:** `OptoSection_opto_left_power` and `OptoSection_opto_right_power` (raw Cerebro
+internal units) are **not** stored as trials table columns.
+
+**Rationale:** Given the binary conversion rule (raw >= 800 → 25 mW, else 0 mW), the raw
+values carry no information beyond what is already in `optogenetic_series_left` /
+`optogenetic_series_right`:
+
+| Information | Trials columns | OptogeneticSeries (L/R) | OptogeneticEpochsTable |
+|---|---|---|---|
+| Was the laser on this trial? | `opto_connected` ✓ | derivable | — |
+| Which hemisphere was stimulated? | (removed) | ✓ separate L/R series | — |
+| Power in physical units (watts) | (removed) | ✓ 0.025 W or 0 W | ✓ 25 mW |
+| Stimulation window type | `opto_type` ✓ | implicit in timing | implicit in epoch duration |
+| Control trials (no stimulation) | `opto_connected` ✓ | **not encoded** | **not encoded** |
+
+The `OptogeneticSeries` step-function already encodes, for each hemisphere independently,
+exactly when the laser was on and at what power (in watts). Adding the raw values alongside
+would be redundant and potentially confusing (two representations of the same binary fact in
+different units).
+
+**What IS kept in the trials table:**
+- `OptoSection_opto_connected` — the only record of which trials were control (Cerebro
+  disconnected) vs. stimulated within an opto session. Not derivable from the time-series.
+- `OptoSection_opto_type` — the stimulation window label (`'Full Trial'`, `'First Half'`,
+  `'Second Half'`) as an explicit per-trial string, convenient for groupby/filtering.
+
+---
+
+### How to recover per-trial hemisphere stimulation from `OptogeneticSeries`
+
+The `OptogeneticSeries` step-function can be joined back to the trials table using the trial
+start/stop times. Each stimulation interval is encoded as two consecutive samples:
+`(t_on, 0.025 W)` immediately followed by `(t_off, 0.0 W)`.
+
+```python
+import numpy as np
+import pandas as pd
+from pynwb import NWBHDF5IO
+
+with NWBHDF5IO("sub-H7015_ses-TaskSwitch6-250516a.nwb", "r") as io:
+    nwb = io.read()
+
+    trials = nwb.trials.to_dataframe()[["start_time", "stop_time",
+                                        "OptoSection_opto_connected",
+                                        "OptoSection_opto_type"]]
+
+    # ── Extract stimulated-on timestamps from each hemisphere ────────────────
+    # The step function alternates: (t_on, 0.025), (t_off, 0.0), (t_on, 0.025), ...
+    # "on" samples are those where data > 0.
+    for side in ("left", "right"):
+        series = nwb.stimulus[f"optogenetic_series_{side}"]
+        ts = np.array(series.timestamps)
+        data = np.array(series.data)
+
+        on_mask = data > 0
+        on_times = ts[on_mask]   # one entry per stimulated trial for this hemisphere
+        off_times = ts[~on_mask] # matching offset times
+
+        # Build a lookup: for each trial, was this hemisphere stimulated?
+        # Strategy: find which trial interval each t_on falls in.
+        stim_left_on = np.zeros(len(trials), dtype=bool)
+        for t_on in on_times:
+            in_trial = (trials["start_time"].values <= t_on) & (t_on < trials["stop_time"].values)
+            stim_left_on |= in_trial
+
+        trials[f"stim_{side}"] = stim_left_on
+
+    # ── Result: per-trial DataFrame with hemisphere columns ──────────────────
+    # trials["stim_left"]  → True if left FOF was stimulated on this trial
+    # trials["stim_right"] → True if right FOF was stimulated on this trial
+    print(trials[["OptoSection_opto_connected", "OptoSection_opto_type",
+                  "stim_left", "stim_right"]].value_counts())
+```
+
+**Notes:**
+- Trials where `opto_connected == 0` will have `stim_left = stim_right = False` by
+  construction (no entry in the series for those trials).
+- To get stimulation duration per trial, read the matching `t_off` from the series
+  (`off_times[i]` pairs with `on_times[i]` since the arrays are strictly alternating).
+- `OptogeneticEpochsTable` provides the same intervals in a `TimeIntervals` format with
+  richer metadata fields (`pulse_length_in_ms`, `number_pulses_per_pulse_train`, etc.) and
+  can be used instead of scanning the raw series timestamps.
