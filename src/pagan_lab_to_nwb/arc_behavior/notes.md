@@ -242,9 +242,7 @@ The routing depends on array length relative to trial count:
 | `len == n_started_trials` and 1 incomplete | `trials.{argument_name}` column | Last entry trimmed |
 | `len == n_completed_trials + 2` | `trials.{argument_name}` column | Warns, trims 2 extra |
 | `len == n_completed_trials - 1` | `trials.{argument_name}` column | NaN appended |
-| `len < 127` and not matching trial count | `task.task_arguments` | expression_type="array" |
 | `dtype == object` (inhomogeneous/nested) | `task.task_arguments` | JSON-dumped, expression_type="json" |
-| length mismatch and `len >= 127` | Skipped with warning | |
 | All-NaN array | Skipped | |
 
 ### Per-trial data (`saved_history`)
@@ -559,8 +557,16 @@ dataset_to_nwb(
 
 ### Task parameter YAML
 
-See `utils/notes.md` for instructions on generating `task_params.yaml` from MATLAB protocol code.
-When provided, each parameter in `TaskArgumentsTable` gets a human-readable description instead of "no description".
+The canonical YAML is checked into the repo at `arc_behavior/task_switch6_params.yaml`.
+It is auto-loaded by `convert_session.py` and `convert_all_sessions.py`; no path argument is needed.
+
+To regenerate it from MATLAB protocol code (e.g. after BControl updates), run:
+```bash
+python src/pagan_lab_to_nwb/arc_behavior/parse_mat_code.py
+```
+This reads `*.m` files from the local Protocol_code folder and writes the output back to
+`arc_behavior/task_switch6_params.yaml`. Human-curated descriptions (e.g. for `_history`
+columns) must be re-applied afterwards. See `utils/notes.md` for the full workflow.
 
 ---
 
@@ -613,7 +619,6 @@ TrialsTable                    StatesTable
 ## References
 
 - [ndx-structured-behavior](https://github.com/rly/ndx-structured-behavior)
-- [Roth et al., 2024, bioRxiv](https://www.biorxiv.org/content/10.1101/2024.01.08.574597v1.full)
 - [NeuroConv](https://github.com/catalystneuro/neuroconv)
 - [NWB (Neurodata Without Borders)](https://www.nwb.org/)
 
