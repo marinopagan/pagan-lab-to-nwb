@@ -182,7 +182,8 @@ def get_description_from_arguments_metadata(
 # -------------------------------
 if __name__ == "__main__":
     protocol_code_folder_path = Path('/Users/weian/data/Pagan/Protocol "TaskSwitch6"/Protocol_code')
-    yaml_file_path = protocol_code_folder_path / "task_switch6_params.yaml"
+    # Output goes to the repo so the YAML is under version control
+    yaml_file_path = Path(__file__).parent.parent / "task_switch6_params.yaml"
 
     all_results = parse_all_matlab_files(protocol_code_folder_path)
     write_yaml(all_results, yaml_file_path)
