@@ -6,12 +6,12 @@ from zoneinfo import ZoneInfo
 
 import pandas as pd
 from pydantic import DirectoryPath, FilePath
-from pynwb import NWBHDF5IO
 
 from neuroconv.utils import dict_deep_update, load_dict_from_file
 from pagan_lab_to_nwb.arc_behavior import ArcBehaviorNWBConverter
 
 _RAT_INFO_PATH = Path(__file__).parent / "rat_information.xlsx"
+_TASK_PARAMS_YAML_PATH = Path(__file__).parent / "task_switch6_params.yaml"
 _SEX_MAP = {"male": "M", "female": "F"}
 
 
@@ -141,12 +141,11 @@ if __name__ == "__main__":
 
     # Parameters for conversion
     behavior_file_path = '/Users/weian/data/Pagan/Protocol "TaskSwitch6"/data_@TaskSwitch6_Nuria_H7015_250516a.mat'
-    nwb_folder_path = "/Volumes/T9/data/Pagan/raw"
+    nwb_folder_path = "/Volumes/T9/data/Pagan_latest_data_share/nwbfiles"
 
     # Path to the YAML file containing task parameters and their descriptions
-    # This file should be generated from the MATLAB code files in the Protocol_code folder
-    # See utils/notes.md for instructions on how to generate this file
-    yaml_file_path = Path('/Users/weian/data/Pagan/Protocol "TaskSwitch6"/Protocol_code') / "task_switch6_params.yaml"
+    # The canonical copy lives in the conversion repo at arc_behavior/task_switch6_params.yaml
+    yaml_file_path = _TASK_PARAMS_YAML_PATH
 
     stub_test = False
     overwrite = True
