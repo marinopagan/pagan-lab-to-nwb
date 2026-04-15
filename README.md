@@ -54,6 +54,17 @@ script docstring for all options (`--start-batch`, `--batch-size`, `--data-dir`,
             │   └── documentation/                  # See below
             └── interfaces/                         # Custom NeuroConv interfaces
 
+## Tutorials
+
+Interactive notebooks are in [`src/pagan_lab_to_nwb/tutorials/`](src/pagan_lab_to_nwb/tutorials/):
+
+| Notebook | Contents |
+|---|---|
+| `arc_behavior_dandi_demo_notebook.ipynb` | DANDI streaming demo: reads NWB files directly from DANDI:001550 without downloading |
+| `arc_behavior_optogenetics_notebook.ipynb` | Optogenetics deep-dive: visualises per-trial laser power, stimulation windows, and FOF site metadata |
+| `protocol_comparison_notebook.ipynb` | Cross-protocol sanity check: loads one NWB file per protocol and compares table structure, heatmaps, and transition graphs |
+| `arc_behavior_example_notebook.ipynb` | Single-session explorer: loads a TaskSwitch6 NWB file and walks through states, events, actions, trials, and stimulus data |
+
 ## Conversion documentation
 
 Detailed notes for the `arc_behavior` conversion live in
