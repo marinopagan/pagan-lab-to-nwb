@@ -109,6 +109,8 @@ def add_stimulus_to_trials(
             raw_values = stimulus_data[stimulus_type].values[trial_idx]
             if isinstance(raw_values, float):
                 raw_values = [] if np.isnan(raw_values) else [raw_values]
+            elif isinstance(raw_values, (int, np.integer)):
+                raw_values = [float(raw_values)]
             elif isinstance(raw_values, np.ndarray):
                 raw_values = raw_values.tolist()
             elif not isinstance(raw_values, list):
@@ -118,6 +120,10 @@ def add_stimulus_to_trials(
 
         flat_times = np.array([t for times in per_trial_times for t in times], dtype=float)
         cumsum = np.cumsum([len(t) for t in per_trial_times])
+        if len(flat_times) == 0:
+            # All trials have zero pulses of this type; HDMF rejects an empty data
+            # array paired with a non-empty index, so skip this column entirely.
+            continue
         nwbfile.trials.add_column(
             name=stimulus_type,
             description=description,
@@ -133,12 +139,11 @@ def add_stimulus_to_trials(
             warn(f"Stimulus parameter '{stimulus_name}' not found in stimulus data. Skipping.")
             continue
         stimulus_values = stimulus_data[stimulus_name].values.tolist()
-        first_val = stimulus_values[0]
-        if isinstance(first_val, dict):
+        if any(isinstance(v, dict) for v in stimulus_values):
             warn(f"Stimulus parameter '{stimulus_name}' has unsupported dict values. Skipping.")
             continue
-        if isinstance(first_val, np.ndarray):
-            stimulus_values = [val.tolist() for val in stimulus_values]
+        if any(isinstance(v, np.ndarray) for v in stimulus_values):
+            stimulus_values = [val.tolist() if isinstance(val, np.ndarray) else val for val in stimulus_values]
         nwbfile.trials.add_column(
             name=stimulus_name,
             description=col_meta["description"],

@@ -144,7 +144,7 @@ class BControlBehaviorInterface(BaseDataInterface):
         metadata = super().get_metadata()
 
         metadata["Behavior"] = dict(
-            Device=dict(name="BControl", manufacturer="Example Manufacturer"),
+            Device=dict(name="BControl", manufacturer="Brody Lab, Princeton University"),
             StateTypesTable=dict(description="Contains the name of the states in the task."),
             StatesTable=dict(description="Contains the start and end times of each state in the task."),
             ActionsTable=dict(description="Contains the onset times of the task output actions."),
@@ -185,10 +185,12 @@ class BControlBehaviorInterface(BaseDataInterface):
         notes_parts = []
         comments_arr = self.saved.get("CommentsSection_comments", np.array([]))
         if isinstance(comments_arr, np.ndarray) and comments_arr.size > 0:
-            notes_parts.append("\n".join(s.strip() for s in comments_arr.tolist()))
+            notes_parts.append("\n".join(s.replace("\x00", "").strip() for s in comments_arr.tolist()))
         overall_arr = self.saved.get("CommentsSection_overall_comments", np.array([]))
         if isinstance(overall_arr, np.ndarray) and overall_arr.size > 0:
-            notes_parts.append("Overall comments:\n" + "\n".join(s.strip() for s in overall_arr.tolist()))
+            notes_parts.append(
+                "Overall comments:\n" + "\n".join(s.replace("\x00", "").strip() for s in overall_arr.tolist())
+            )
         if notes_parts:
             metadata["NWBFile"]["notes"] = "\n\n".join(notes_parts)
 
