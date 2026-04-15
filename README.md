@@ -22,11 +22,20 @@ uv pip install --editable .
 This installs the package in [editable mode](https://pip.pypa.io/en/stable/cli/pip_install/#editable-installs)
 so any changes you make to the source are immediately reflected without reinstalling.
 
-### Running a specific conversion
+### Running a conversion
 
+Convert a single session:
 ```bash
 python src/pagan_lab_to_nwb/arc_behavior/convert_session.py
 ```
+
+Convert, validate, and upload an entire protocol to DANDI in batches:
+```bash
+.venv/bin/python src/pagan_lab_to_nwb/arc_behavior/convert_and_upload_batched.py --protocol TaskSwitch6
+```
+
+Use `--dry-run` to preview the batch plan before committing to a full run. See the
+script docstring for all options (`--start-batch`, `--batch-size`, `--data-dir`, `--output-dir`).
 
 ## Repository structure
 
@@ -36,15 +45,14 @@ python src/pagan_lab_to_nwb/arc_behavior/convert_session.py
     ├── README.md
     └── src
         └── pagan_lab_to_nwb
-            ├── arc_behavior/           # BControl → NWB conversion (all protocols)
-            │   ├── convert_session.py
-            │   ├── convert_all_sessions.py
-            │   ├── convert_taskswitch4_batched.py
+            ├── arc_behavior/                      # BControl → NWB conversion (all protocols)
+            │   ├── convert_session.py              # Convert a single session
+            │   ├── convert_all_sessions.py         # Convert all sessions (no upload)
+            │   ├── convert_and_upload_batched.py   # Convert + validate + upload any protocol
             │   ├── nwbconverter.py
             │   ├── metadata.yaml
-            │   └── documentation/      # See below
-            ├── arc_ecephys/            # Electrophysiology + Spyglass insertion
-            └── interfaces/             # Custom NeuroConv interfaces
+            │   └── documentation/                  # See below
+            └── interfaces/                         # Custom NeuroConv interfaces
 
 ## Conversion documentation
 
