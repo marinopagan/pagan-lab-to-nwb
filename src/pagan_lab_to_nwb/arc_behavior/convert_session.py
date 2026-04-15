@@ -99,16 +99,25 @@ def session_to_nwb(
 
     converter = ArcBehaviorNWBConverter(source_data=source_data)
 
+    # Load the editable metadata YAML first so timezone and other session-level
+    # values are available before they are needed.
+    editable_metadata_path = Path(__file__).parent / "metadata.yaml"
+    editable_metadata = load_dict_from_file(editable_metadata_path)
+    timezone_str = editable_metadata.get("Session", {}).get("timezone", "Europe/London")
+
     # Add datetime to conversion
     metadata = converter.get_metadata()
     session_start_time = metadata["NWBFile"]["session_start_time"]
-    session_start_time = session_start_time.replace(tzinfo=ZoneInfo("Europe/London"))
+    session_start_time = session_start_time.replace(tzinfo=ZoneInfo(timezone_str))
     metadata["NWBFile"].update(session_start_time=session_start_time)
 
-    # Update default metadata with the editable in the corresponding yaml file
-    editable_metadata_path = Path(__file__).parent / "metadata.yaml"
-    editable_metadata = load_dict_from_file(editable_metadata_path)
+    # Merge YAML metadata over interface defaults.
+    # Optogenetics is extracted first and set directly: dict_deep_update treats duplicate
+    # values inside lists as a set union and collapses them (e.g. [473.0, 473.0] → [473.0]).
+    opto_meta = editable_metadata.pop("Optogenetics", None)
     metadata = dict_deep_update(metadata, editable_metadata)
+    if opto_meta is not None:
+        metadata["Optogenetics"] = opto_meta
 
     metadata["Subject"]["subject_id"] = subject_id
     metadata["NWBFile"]["session_id"] = session_id
@@ -118,7 +127,7 @@ def session_to_nwb(
     if subject_id in rat_info.index:
         row = rat_info.loc[subject_id]
         dob = row["Date of Birth"]
-        metadata["Subject"]["date_of_birth"] = dob.to_pydatetime().replace(tzinfo=ZoneInfo("Europe/London"))
+        metadata["Subject"]["date_of_birth"] = dob.to_pydatetime().replace(tzinfo=ZoneInfo(timezone_str))
         sex_str = str(row["Sex"]).strip().lower()
         metadata["Subject"]["sex"] = _SEX_MAP.get(sex_str, "U")
     else:

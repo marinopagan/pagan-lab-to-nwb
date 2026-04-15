@@ -143,16 +143,20 @@ class BControlBehaviorInterface(BaseDataInterface):
     def get_metadata(self) -> DeepDict:
         metadata = super().get_metadata()
 
+        # Behavior table descriptions and device metadata are defined in metadata.yaml
+        # (arc_behavior/metadata.yaml) and merged into this dict by convert_session.py.
+        # Only the key structure is seeded here so downstream code can safely navigate
+        # metadata["Behavior"] before the YAML merge happens.
         metadata["Behavior"] = dict(
-            Device=dict(name="BControl", manufacturer="Brody Lab, Princeton University"),
-            StateTypesTable=dict(description="Contains the name of the states in the task."),
-            StatesTable=dict(description="Contains the start and end times of each state in the task."),
-            ActionsTable=dict(description="Contains the onset times of the task output actions."),
-            ActionTypesTable=dict(description="Contains the name of the task output actions."),
-            EventTypesTable=dict(description="Contains the name of the events in the task."),
-            EventsTable=dict(description="Contains the onset times of events in the task."),
-            TrialsTable=dict(description="Contains the start and end times of each trial in the task."),
-            TaskArgumentsTable=dict(description="Contains the task arguments for the task."),
+            Device=dict(name="BControl", manufacturer=""),
+            StateTypesTable=dict(description=""),
+            StatesTable=dict(description=""),
+            ActionsTable=dict(description=""),
+            ActionTypesTable=dict(description=""),
+            EventTypesTable=dict(description=""),
+            EventsTable=dict(description=""),
+            TrialsTable=dict(description=""),
+            TaskArgumentsTable=dict(description=""),
         )
 
         self._read_file()
@@ -217,4 +221,4 @@ class BControlBehaviorInterface(BaseDataInterface):
             arguments_metadata=arguments_metadata,
             stub_test=stub_test,
         )
-        add_optogenetic_series_to_nwbfile(nwbfile, self.saved_history, parsed_events, stub_test=stub_test)
+        add_optogenetic_series_to_nwbfile(nwbfile, self.saved_history, parsed_events, metadata, stub_test=stub_test)

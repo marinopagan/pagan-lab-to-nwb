@@ -54,24 +54,10 @@ def add_stimulus_to_trials(
     # they come from BControl.  Add cpoke_start_time to convert to absolute time.
     # For error/invalid trials (rat never poked) cpoke_start_time is NaN; relative
     # pulse times are still stored because the stimulus was generated.
+    # Descriptions are read from metadata.yaml (Behavior.TrialsTable.pulse_columns).
+    pulse_col_meta = metadata.get("Behavior", {}).get("TrialsTable", {}).get("pulse_columns", {})
     pulse_column_descriptions = {
-        "left_hi": (
-            "Times of left-speaker, high-frequency pulses in seconds relative to "
-            "cpoke onset (centre-port entry). Add cpoke_start_time to convert to "
-            "absolute session time. Empty when no pulses of this type were generated."
-        ),
-        "right_hi": (
-            "Times of right-speaker, high-frequency pulses in seconds relative to "
-            "cpoke onset. Add cpoke_start_time to convert to absolute session time."
-        ),
-        "left_lo": (
-            "Times of left-speaker, low-frequency pulses in seconds relative to "
-            "cpoke onset. Add cpoke_start_time to convert to absolute session time."
-        ),
-        "right_lo": (
-            "Times of right-speaker, low-frequency pulses in seconds relative to "
-            "cpoke onset. Add cpoke_start_time to convert to absolute session time."
-        ),
+        col: pulse_col_meta.get(col, "no description") for col in ("left_hi", "right_hi", "left_lo", "right_lo")
     }
 
     n_trials = len(trials)
@@ -91,12 +77,7 @@ def add_stimulus_to_trials(
 
     nwbfile.trials.add_column(
         name="cpoke_start_time",
-        description=(
-            "Absolute time (seconds from session start) when the rat entered the "
-            "centre port (cpoke onset). NaN for trials where the rat did not poke "
-            "(error/invalid trials). Used to convert relative pulse timestamps in "
-            "left_hi/right_hi/left_lo/right_lo to absolute times."
-        ),
+        description=pulse_col_meta.get("cpoke_start_time", "no description"),
         data=[t if t is not None else float("nan") for t in cpoke_start_times],
     )
 
