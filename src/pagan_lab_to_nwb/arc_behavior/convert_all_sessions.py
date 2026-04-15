@@ -6,7 +6,10 @@ from pathlib import Path
 from pydantic import DirectoryPath, FilePath
 from tqdm import tqdm
 
-from pagan_lab_to_nwb.arc_behavior.convert_session import session_to_nwb
+from pagan_lab_to_nwb.arc_behavior.convert_session import (
+    _TASK_PARAMS_YAML_PATH,
+    session_to_nwb,
+)
 
 
 def dataset_to_nwb(
@@ -48,7 +51,7 @@ def dataset_to_nwb(
     output_dir_path = Path(output_dir_path)
     output_dir_path.mkdir(parents=True, exist_ok=True)
 
-    file_paths = sorted(data_dir_path.rglob(glob_pattern))
+    file_paths = sorted(data_dir_path.rglob(glob_pattern), reverse=True)
     if not file_paths:
         print(f"No files matched pattern '{glob_pattern}' in '{data_dir_path}'. Nothing to convert.")
         return []
@@ -84,19 +87,17 @@ if __name__ == "__main__":
     # Directory containing the BControl .mat files and Protocol_code folder
     data_dir = Path("/Volumes/T9/data/Pagan_latest_data_share")
     # Directory where the NWB files will be saved
-    output_dir = Path("/Volumes/T9/data/Pagan_latest_data_share/nwbfiles")
+    output_dir = Path("/Users/weian/data/Pagan_nwbfiles_to_upload/001550")
 
-    # Path to the YAML file containing task parameters and their descriptions
-    # This file should be generated from the MATLAB code files in the Protocol_code folder
-    # See src/pagan_lab_to_nwb/arc_behavior/utils/notes.md for instructions on how to generate this file
-    task_yaml = Path('/Users/weian/data/Pagan/Protocol "TaskSwitch6"') / "Protocol_code" / "task_switch6_params.yaml"
+    # Canonical YAML lives in the repo at arc_behavior/task_switch6_params.yaml
+    task_yaml = _TASK_PARAMS_YAML_PATH
 
     dataset_to_nwb(
         data_dir_path=data_dir,
         output_dir_path=output_dir,
         task_params_file_path=task_yaml,
-        glob_pattern="data_@*.mat",  # data_@*.mat
-        error_log_filename="conversion_errors_all.txt",
+        glob_pattern="data_@TaskSwitch6_*.mat",
+        error_log_filename="conversion_errors_TaskSwitch6.txt",
         stub_test=False,
         overwrite=False,
     )
