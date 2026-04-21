@@ -28,11 +28,12 @@ def create_states(
         state_types_table=state_types,
     )
 
-    first_trial_states = parsed_events[0]["states"]
-    for state_name in first_trial_states:
-        if not isinstance(first_trial_states[state_name], np.ndarray):
-            continue
-        state_types.add_row(state_name=state_name, check_ragged=False)
+    seen_states: dict[str, bool] = {}
+    for trial_events in parsed_events:
+        for state_name, val in trial_events["states"].items():
+            if isinstance(val, np.ndarray) and state_name not in seen_states:
+                seen_states[state_name] = True
+                state_types.add_row(state_name=state_name, check_ragged=False)
 
     state_rows = []
     for trial_events in parsed_events:
@@ -44,16 +45,15 @@ def create_states(
                 continue
 
             state_times = np.asarray(state_times)
-            # Special handling for starting state with possible NaNs
+            # Special handling for starting state with possible NaNs or multiple revisits.
+            # state_0 can be visited multiple times (protocol restarts); take first exit as
+            # start and last entry as stop to span the full trial interval.
             if state_name == starting_state:
                 not_nan = ~np.isnan(state_times)
                 starting_state_times = state_times[not_nan]
-                if len(starting_state_times) > 2:
-                    raise ValueError(
-                        f"Unexpected shape for starting state '{state_name}', shape ({state_times.shape}) "
-                        f"values of {state_times[:]}. Expected shape is (2,) or (2, 2) with NaNs handled."
-                    )
-                start_time, stop_time = starting_state_times
+                if len(starting_state_times) < 2:
+                    continue
+                start_time, stop_time = starting_state_times[0], starting_state_times[-1]
                 state_rows.append({"state_name": state_name, "start_time": start_time, "stop_time": stop_time})
                 continue
 
@@ -106,18 +106,19 @@ def create_events(
         event_types_table=event_types,
     )
 
-    first_trial_events = parsed_events[0]["pokes"]
-    for event_name in first_trial_events:
-        if not isinstance(first_trial_events[event_name], np.ndarray):
-            continue
-        event_types.add_row(event_name=event_name, check_ragged=False)
+    seen_events: dict[str, bool] = {}
+    for trial_events in parsed_events:
+        for event_name, val in trial_events["pokes"].items():
+            if isinstance(val, np.ndarray) and event_name not in seen_events:
+                seen_events[event_name] = True
+                event_types.add_row(event_name=event_name, check_ragged=False)
 
     event_rows = []
     for trial_events in parsed_events:
         pokes = trial_events["pokes"]
         event_names = event_types.event_name[:]
         for event_name in event_names:
-            event_times = pokes[event_name]
+            event_times = pokes.get(event_name, np.array([]))
             if len(event_times) == 0:
                 continue
             value = pokes["starting_state"].get(event_name, "out")
@@ -169,18 +170,19 @@ def create_actions(
         action_types_table=action_types,
     )
 
-    first_trial_actions = parsed_events[0]["waves"]
-    for action_name in first_trial_actions:
-        if not isinstance(first_trial_actions[action_name], np.ndarray):
-            continue
-        action_types.add_row(action_name=action_name, check_ragged=False)
+    seen_actions: dict[str, bool] = {}
+    for trial_events in parsed_events:
+        for action_name, val in trial_events["waves"].items():
+            if isinstance(val, np.ndarray) and action_name not in seen_actions:
+                seen_actions[action_name] = True
+                action_types.add_row(action_name=action_name, check_ragged=False)
 
     action_rows = []
     for trial_events in parsed_events:
         waves = trial_events["waves"]
         action_names = action_types.action_name[:]
         for action_name in action_names:
-            action_times = waves[action_name]
+            action_times = waves.get(action_name, np.array([]))
             if len(action_times) == 0:
                 continue
             value = waves["starting_state"].get(action_name, "out")

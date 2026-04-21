@@ -167,17 +167,12 @@ class BControlBehaviorInterface(BaseDataInterface):
             protocol_title = self.saved[protocol_title_keys[0]]
             # Expected format: '... Started at HH:MM, Ended at HH:MM'
             match = re.search(r"Started at (\d{2}:\d{2})", protocol_title)
-            if not match:
-                raise ValueError(
-                    f"Could not extract session start time from protocol title: '{protocol_title}'. "
-                    "Expected format is 'Started at HH:MM'. "
-                    "Sessions without this substring are excluded from conversion."
-                )
+            start_time_str = match.group(1) if match else "00:00"
             if "SavingSection_SaveTime" in self.saved:
                 save_time = self.saved["SavingSection_SaveTime"]  # '15-Aug-2019 13:19:41'
                 date_str = save_time.split()[0]
                 try:
-                    session_start_time = datetime.strptime(f"{date_str} {match.group(1)}", "%d-%b-%Y %H:%M")
+                    session_start_time = datetime.strptime(f"{date_str} {start_time_str}", "%d-%b-%Y %H:%M")
                     metadata["NWBFile"]["session_start_time"] = session_start_time
                 except ValueError as e:
                     warn(

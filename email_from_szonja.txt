@@ -1,0 +1,388 @@
+Delivered-To: marinopagan@gmail.com
+Received: by 2002:a05:7011:1009:b0:510:c093:7e36 with SMTP id mt9csp1086725mdb;
+        Sun, 19 Apr 2026 02:39:53 -0700 (PDT)
+X-Received: by 2002:a05:600c:a105:b0:485:3a03:ceca with SMTP id 5b1f17b1804b1-488fb7826femr93350975e9.23.1776591592956;
+        Sun, 19 Apr 2026 02:39:52 -0700 (PDT)
+ARC-Seal: i=2; a=rsa-sha256; t=1776591592; cv=pass;
+        d=google.com; s=arc-20240605;
+        b=LchQ8iEaYdxa86ysPBo5Kl18HPnuQ1HIpSCUrerlKqqyr4wZIekhsyzMwPfxgkZTp9
+         +lI8nqxSF2kJApz/rd+m697SFtbyxHVkV7TTwI7zFkGDsYijAB/s7gwRume0Lie0wJT0
+         g1lEy8H0CQfj032KZ7Iozjvs7TTIcfp2hkS+8C6LeSsuqtLysExfIsHnfDs6dnEVdzlC
+         u8xbQyqEGHtWrFoVWMessxp6bSXnCc7juYUiKFYLq+DvYHbkC+Y1bMMQda+J5eg0Bh8V
+         P2J8JiAR+LuLboqS9nZcif9YiPSOXocwuygEzIXpNn80oA2o70XSM1IOu+sDNkrSUTec
+         fWQA==
+ARC-Message-Signature: i=2; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=mime-version:content-language:accept-language:in-reply-to
+         :references:message-id:date:thread-index:thread-topic:subject:to
+         :from:dkim-signature;
+        bh=nEykyoACUdWW2JrfB4PZJsoGt6YQgt2HjitBxkXR5Zw=;
+        fh=Ub/aDZv28YoCiSlDu0VjtqHr9a2hKxtxIG367Liffhc=;
+        b=GMiB6ZNMFpdZLTIBFE1sNChyJWm/5WDrUmPpO2jvvAwpn3a5Vcnq3ly/UZ1YwAi8KG
+         C9ROn7j/Uxr0szfjU2wyKpOiMCyDfpHtxIsflKDjXF+EURcroC7RumBie3UNb+WN+9Ue
+         lJPBuNqpv+jIz4GT9YaPw7FN3CVQcwLrT8d+EgXpv34DKuno2XOmjv8ELDZHVGfq2257
+         1FZAzlwulpa47qO/ynL0saLsLYo45OArpW7cJFNN4t9OXvu+MaFGHQLQs0OIwLQKo9OH
+         BijDjWu0Z6NSYuQ6+rgi+GzoerQFTI4k5QDcrbAIKBpM9jLlXoK/qzvfgwr4lGUj8lmy
+         mR/w==;
+        dara=google.com
+ARC-Authentication-Results: i=2; mx.google.com;
+       dkim=pass header.i=@ed.ac.uk header.s=selector1 header.b=sNyD4u0E;
+       arc=pass (i=1 spf=pass spfdomain=ed.ac.uk dkim=pass dkdomain=ed.ac.uk dmarc=pass fromdomain=ed.ac.uk);
+       spf=pass (google.com: domain of mpagan@ed.ac.uk designates 129.215.17.202 as permitted sender) smtp.mailfrom=mpagan@ed.ac.uk;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=ed.ac.uk
+Return-Path: <mpagan@ed.ac.uk>
+Received: from seine.is.ed.ac.uk (seine.is.ed.ac.uk. [129.215.17.202])
+        by mx.google.com with ESMTPS id ffacd0b85a97d-43fe4e402b8si12165952f8f.250.2026.04.19.02.39.52
+        for <marinopagan@gmail.com>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 19 Apr 2026 02:39:52 -0700 (PDT)
+Received-SPF: pass (google.com: domain of mpagan@ed.ac.uk designates 129.215.17.202 as permitted sender) client-ip=129.215.17.202;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@ed.ac.uk header.s=selector1 header.b=sNyD4u0E;
+       arc=pass (i=1 spf=pass spfdomain=ed.ac.uk dkim=pass dkdomain=ed.ac.uk dmarc=pass fromdomain=ed.ac.uk);
+       spf=pass (google.com: domain of mpagan@ed.ac.uk designates 129.215.17.202 as permitted sender) smtp.mailfrom=mpagan@ed.ac.uk;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=ed.ac.uk
+Received: from exseed.ed.ac.uk (hbdat3.is.ed.ac.uk [129.215.235.38]) by seine.is.ed.ac.uk (8.15.2/8.15.2) with ESMTPS id 63J9dmcj1222401 (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT) for <marinopagan@gmail.com>; Sun, 19 Apr 2026 10:39:48 +0100
+Received: from hbdkb4.is.ed.ac.uk (129.215.235.39) by hbdat3.is.ed.ac.uk (129.215.235.38) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.37; Sun, 19 Apr 2026 10:39:48 +0100
+Received: from AS8PR07CU003.outbound.protection.outlook.com (40.93.65.55) by hbdkb4.is.ed.ac.uk (129.215.235.39) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.37 via Frontend Transport; Sun, 19 Apr 2026 10:39:48 +0100
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none; b=SlcptSP7NqA+M0aTGIa5b8OfDdYmRTgBTJtK2NzrOn90NnwylFdkLuyz559EnFmvu2CyAeUPVLbRYe68f2H0sa/3oW0eW7NI8+wiGMmCFpiNz4+uS7VX3imh+Kfnh7iUgqY3JgZg/qwzJfQ3+2i2iNH4YfblJgVzKsplqV/+XUgv88uL/1pZdJ6vVshIehrvtypux9SeIebKLHtcW87xe85bvKIH17Fj/sH3WYoCyDtDxN12bIEqwDOoFqV7rkr9RSPAkbLK/D46m8WESy2nO1xCZoITXS7B3fQuTtDWCc3upuyUdz3WO1b1vvCKoVrMmhidgkAFtFEiENW7K3Q3Iw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; s=arcselector10001; h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1; bh=nEykyoACUdWW2JrfB4PZJsoGt6YQgt2HjitBxkXR5Zw=; b=mLD3BNtSrhhajeYfl51+nruPgtaUy8W1KXzIn8cu/HfTq+aL3s9hCQj3DcwfdLwt8qlmkd6Is62CP+EW4w/gGZDSM2I8V74VPi9Y+JR+eYfEFKLWXWjOSA0Ss41SGQindSKHdWfoggSDv/hoBoM+CMuZwaVGWQ+Puz4YHFEr+fRBtehh323Jv5tS5dgW2JPpdRt9f33omQaEooi6ocXtQyWHmAwRU6sIgDd8sf+o1hawSjzDueZnzb8z8CtnUePgzz+r4dSy4qgBmzF+dyz3HTXQK5br2c7VucuuCcHXNXTBGEa+WABZZkXsK/GMHDryV4tvusjCr2O2okrerfHa7A==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass smtp.mailfrom=ed.ac.uk; dmarc=pass action=none header.from=ed.ac.uk; dkim=pass header.d=ed.ac.uk; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ed.ac.uk; s=selector1; h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck; bh=nEykyoACUdWW2JrfB4PZJsoGt6YQgt2HjitBxkXR5Zw=; b=sNyD4u0E3Vn/g+FNeFjq0/LdByFZMMlfkzV7Vp0un/Xa67xQaobZcHntZmJMLRbkNocw7eOoOIt/rj/IYkFj9O/+hUfFcRDUhGlGfMst6UCroBBzWymzFMVBMUiT0DfukZ/VBul4keo2eARnV+whWyrt2z6qRujbQdJAbWW++f6SV6nTfwGlkLbWtbTswdQV2Ky3K6eymK5b6/RjHoxNOYaJ8YieuLc5nkSHmc4heJJAldCLN61qeo6H3XaHO8ligbiPLzztoJtV1ay7Hvr7+TI+xr0nt620za70K44PQ1aZDyzOUuVvXMkruOWiZzj0Cit5xqIDbuHTUGve/+MgFQ==
+Received: from DU6PR05MB11659.eurprd05.prod.outlook.com (2603:10a6:10:5c1::13) by MRWPR05MB12503.eurprd05.prod.outlook.com (2603:10a6:501:97::24) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9818.31; Sun, 19 Apr 2026 09:39:46 +0000
+Received: from DU6PR05MB11659.eurprd05.prod.outlook.com ([fe80::fa6a:c8b9:6443:b809]) by DU6PR05MB11659.eurprd05.prod.outlook.com ([fe80::fa6a:c8b9:6443:b809%6]) with mapi id 15.20.9818.031; Sun, 19 Apr 2026 09:39:42 +0000
+From: Marino Pagan <mpagan@ed.ac.uk>
+To: Marino Pagan <marinopagan@gmail.com>
+Subject: FW: Pagan Lab NWB Conversion — Progress Update and Feedback Requests
+Thread-Topic: Pagan Lab NWB Conversion — Progress Update and Feedback Requests
+Thread-Index: AQHcy/5XvIaMaeIMPkaTcpj9uGOTn7XmKONd
+Date: Sun, 19 Apr 2026 09:39:42 +0000
+Message-ID: <DU6PR05MB11659A89CB57BF78E17F48974F32E2@DU6PR05MB11659.eurprd05.prod.outlook.com>
+References: <CAMwo-OKdwdPfRm4ZDAJDs5RzC3x-h-tsVA=+DRtEuDZbt0S02w@mail.gmail.com>
+In-Reply-To: <CAMwo-OKdwdPfRm4ZDAJDs5RzC3x-h-tsVA=+DRtEuDZbt0S02w@mail.gmail.com>
+Accept-Language: en-GB, en-US
+Content-Language: en-GB
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-reactions: allow
+authentication-results: dkim=none (message not signed) header.d=none;dmarc=none action=none header.from=ed.ac.uk;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: DU6PR05MB11659:EE_|MRWPR05MB12503:EE_
+x-ms-office365-filtering-correlation-id: 1624af5d-20bc-4cd2-f2a2-08de9df79575
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;ARA:13230040|366016|786006|1800799024|376014|38070700021|56012099003|22082099003|18002099003|8096899003;
+x-microsoft-antispam-message-info: cjRvND/3PluUmvTZW8xyMKjjNPgi87kxUd0P9Ab1IjWbq68HW56fiNvn9OtM+j9GkiaSwnkrHor9OdHADlkK0sMc9LH+Xi1+8LukNyJyIWVtoew5LVypp9FJ7CDofGYprTCjr+T1MdpI55PSDW/iqYwzR5iZ+keC9gjc56jC/kmq9h5vIDrV5/3GGwVtKknuIfJd4MSW3lR9DYgH8HAzRbqezUM6H8dqK0/lNr9bf0BXlbBcT+blV68ehtw7GicfwlcG+3iBlHLKYqw0jF+j2N1RjCCJ9GzJNHNWcnnoemh4dPP3T3+PMSrWDTpy20eMVHXXhq5vvsgZrmhsKr/3bWXHRJHJp1g3U+P/7dJWx3nboMIkfXBH53pbMaT4YPNRaZl++d6cgUulgqynKiefmEG4f4y2wl3kepFq+padKrN4lJSE/fdpCSjHDntniYbj1ASpwH6GUNT1W/SZeQNQ7jirmjMWb6DS7eV9oNnItd+DCPTnzhNR/Zfkz1yTECWUhq4pgC/XSBGkck5FUJyioBfjhbjFlMYEVP9fqluRjueSltv+heOZ19wHPiRCQiHLoj+SAZPfQt52+1r5y9so26CioN21uQ0HG/sC2rr1nEkcxe0JLJ3gbaq6GAfzikYkKKAcGc2jnbN+ERsQbFc5Jkt6M37bYvNjnKfoKuNVgkFuvwgzIJ2Adr1yP2mkhoE/yhWuYqdVUKADP+u6C4UiZYbS6849EW4kKTZsk47LAmFeDNuzS32xEqY7TxWEpyCa
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:zh-cn;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DU6PR05MB11659.eurprd05.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(786006)(1800799024)(376014)(38070700021)(56012099003)(22082099003)(18002099003)(8096899003);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: 2aM/6ee2kvIX+3qibd2AhgjUpO3khZ4Zo4kVBIYNZzQi6aaH1FyJasDqAvboUBt8etdSEIJ/yOqH7BM1SZV1ZwPVr6Dnn3gIdt9KA2OT1RvIBYHD0GAoMfwmKaZNXKO1OZI1TctG7UodOy5yGzEiGRGdY1WqWQbakvh6e0QcPABGhbxpzL/JIuvTxyRMkq9UJA0kqZktGCm06s+8SkwWe7SSQ+2d24ERDqsRayK/bk8W6vDKkhLNzdzcHd3HnvFJHl9Hv5DImRbusOGH7hJJ/r0dQa4n8t/iaidN1Ttx9Ynx94c09GBrpeOXDFpMQ9cUsl4fx88ctiKWeIDhOvGz9WMJMxIopXQzEeyyeKZ87uWwggQDZdJJBY7Wzt7sr5SzNqJfF/pyraeOU9C+MQwdquUDctLUVFfaH8Q9taD+UiZq9fEDjTDSQXwf4iIwXuN7DxXqD/mlK6SLU4Fg3QNEeOuKwvRpWErW583QIcB3xUIJOyk5U2xWOOrvhBeFchdBTP9ATJblvB9++VtWjbNSq8iMPyZKle7Pc9cXjnyYl3qOgWFs2uT3/Wsf4m2RZRngkensF/GBLO1S5+2m2/YJrQKWkqEnuWNDlXTvHu/gEqYLjS6Pm2kGdR/m3UQacT0AtqDHGbsU00zdE/lsbUPUP6zhHKCuwCXOLTDjKAWaxVBelk6Vf2dZ37chgWsTJ4e8OAWg87MpjAXAnOkO9aQ4Z5Xo/yj8HunLPaAAiusxRddRNkjFCt86l+AtA4En0+AduwNZW+oHF3QvylZp5mNfJfqw3ctezVlblhg/kuFuRbFqcr2TKUmFAaWoNc7uJ26XGXTXr1ZAv0UXbbpLF/EsgORJaGbLrhSQRkTtOLDZi45KvDlADOv3Fu75R7SFhd2IMsUhhp/LwKYGPps1eOfCo3vBt4ScADgADmV08PdeYBnVM93W/G1iMNLK4DERN8eHcZRJkrHVejlmWCQeSiDs8tpNOunlfaWIsohCWE1XAW46modEYIoa871Nznoe560zJGTXTP5rZp7lzJnekq/FVbdVy/IagQdZcnN83ZxQmo19sBY0WTW6UmD7U5zyjxcu0U9/ra11KgJZ4Lkp5nnQ0YdaV4AFgc+2A7yvKZyFjOdmCA5wE5n6LdCgKUQ7fSwO3uZwD2SM6dLiKFC/ADqxoNd7u3Sa+ZPkns4HAEP4pwM7DKhjteHGQ/wsT3FF1MqBMmvSrmWdOEfjcFVQ3H03Iv8HoCyhYMONxfSGz2nHJAuuQzlc89+aao2xugGaE9TiWoGVSnwI8ZW2zVQ2o9W+GduCqxfjSax/X2ipTRQop8mB55YrK6f4Jh7Wm59+smCZrpMAGhQkHASdTeYGmj3jahKpibDU7kqmEiU5YdzbE57+gVirocdVAbR++02z05uJq+yN3RaDdRPnGYygc2mpieGjMwLiSdj+F6IZM5YUWWC8gf8/jFZspu8BgF3gyIhW7YNhNKvmhz7kV2aXt5mKeGUvRA4BRZvhSZfCt5jfhcXZcU1ojOcXVL7+kS9C/0ufu0VHIj/j8MGF5k5jjh3yb72PjD05C4XZoo3JtQNo+OloswUDoQrX0NE8oRjGGpKqNjh9uW8Q25eg+CBmV5N11hPVcMfzS/QaBrLZU2sTr+EntR+0wTBiGldZFkZlX1WHa6Wj25yZQ0Trfn00Umo/+bqWf7hfuo6p+Sbme+4iDFNplYEy3eL2EurwGfFyoKfPyYdRKJFMu+gT+YJWqLNwug==
+Content-Type: multipart/alternative; boundary="_000_DU6PR05MB11659A89CB57BF78E17F48974F32E2DU6PR05MB11659eu_"
+MIME-Version: 1.0
+X-Exchange-RoutingPolicyChecked: GlHHSHrefVpJmVZuVqmPbqvB1jz7u32X/hfbZDzYv+IkWb8KdGIl3I5sDyGwooSBzuoG7A0jeQzHONjknWi1QE8CsbZxEKNLDS4JIUbU1aMuoXxnw32m/zSjqOvWIvA+kLBKPHhSqF8DAsbsE0StkcLuO//Q/k3QZwZBrkTcNvpreOEdJwQiN2cCx99FUKvhc3xoK2FaaHu8JXzdgg4JevSvhIIFhDmoqgM973+DFQY02JNbsaGb+HnNzB+7MmGuxmWW9r+iar2ApKW0g7k8RpI9jS2BzDSehflRt7ezdhaHUR28Gd8vsF46GBhf2MW4hH+axf6uGyMnIiA9BTCkRw==
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: DU6PR05MB11659.eurprd05.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1624af5d-20bc-4cd2-f2a2-08de9df79575
+X-MS-Exchange-CrossTenant-originalarrivaltime: 19 Apr 2026 09:39:42.3069 (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 2e9f06b0-1669-4589-8789-10a06934dc61
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 7XHSynFuURYxX8Fn5Y3EEbmqkbmSR5gIG8UP7ML/jr9kGjxl63lB6+AEEAsKwy6S
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MRWPR05MB12503
+X-OriginatorOrg: ed.ac.uk
+X-Edinburgh-Scanned: at seine.is.ed.ac.uk
+
+--_000_DU6PR05MB11659A89CB57BF78E17F48974F32E2DU6PR05MB11659eu_
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
+
+DQoNCkZyb206IEFubmEgU3pvbmphIFdlaWdsIDx3c3pvbmphQGdtYWlsLmNvbT4NCkRhdGU6IFR1
+ZXNkYXksIDE0IEFwcmlsIDIwMjYgYXQgMTI6MDMNClRvOiBNYXJpbm8gUGFnYW4gPG1wYWdhbkBl
+ZC5hYy51az4sIEVsaXNlIENoYW5nIDxFLkMuVy5DaGFuZ0BzbXMuZWQuYWMudWs+LCBBbGVzc2Fu
+ZHJhIFRyYXBhbmkgPGFsZXNzYW5kcmEudHJhcGFuaUBjYXRhbHlzdG5ldXJvLmNvbT4sIEJlbiBE
+aWNodGVyIDxiZW4uZGljaHRlckBjYXRhbHlzdG5ldXJvLmNvbT4NClN1YmplY3Q6IFBhZ2FuIExh
+YiBOV0IgQ29udmVyc2lvbiChqiBQcm9ncmVzcyBVcGRhdGUgYW5kIEZlZWRiYWNrIFJlcXVlc3Rz
+DQoNCkhpIE1hcmlubywgRWxpc2UsDQoNCkkgaG9wZSB5b3UncmUgZG9pbmcgd2VsbC4gSSB3YW50
+ZWQgdG8gcHJvdmlkZSBhIGxvbmcgdXBkYXRlIG9uIHRoZSBCQ29udHJvbCBhbmQgZXhhbXBsZSBk
+YXRhIGNvbnZlcnNpb24gcHJvZ3Jlc3MsIGFuZCBhc2sgZm9yIGZlZWRiYWNrLg0KDQpQYXJ0IDEu
+IEJDb250cm9sIENvbnZlcnNpb24gUHJvZ3Jlc3MgVXBkYXRlDQoNClN1bW1hcnk6DQoNCldlIGhh
+dmUgY29udmVydGVkIDE2LDExMyBiZWhhdmlvcmFsIHNlc3Npb25zIGZyb20gQkNvbnRyb2wgLm1h
+dCBmaWxlcyB0byBOV0IgZm9ybWF0IGFuZCB1cGxvYWRlZCB0aGVtIHRvIERBTkRJIGF0IGRhbmRp
+YXJjaGl2ZS5vcmcvZGFuZGlzZXQvMDAxNTUwPGh0dHBzOi8vZGFuZGlhcmNoaXZlLm9yZy9kYW5k
+aXNldC8wMDE1NTAvZHJhZnQ+Lg0KDQpUYXNrU3dpdGNoNDogMTMsNzc3DQpUYXNrU3dpdGNoNjog
+MSw1NDgNClByb0FudGkzTWFyaW5vOiAxNzMNClRhc2tTd2l0Y2gyOiAyMDENClRhc2tTd2l0Y2gz
+OiAxMTENClRhc2tTd2l0Y2g0ZG91YmxlOiA5Ng0KVGFza1N3aXRjaDRuZXc6IDg2DQpQQnVwczog
+NzMNClRhc2tTd2l0Y2g0cmVwZWF0OiAxMw0KUHJvQW50aTM6IDE2DQpUYXNrU3dpdGNoOiAxOQ0K
+DQogICogICBleGFtcGxlIG5vdGVib29rPGh0dHBzOi8vZ2l0aHViLmNvbS9jYXRhbHlzdG5ldXJv
+L3BhZ2FuLWxhYi10by1ud2IvYmxvYi9iMGFiM2ZhYjE4OWQ3ZmY2MTljNDk0NGZiYjExNmVjOGYy
+ZmI4NDQ3L3NyYy9wYWdhbl9sYWJfdG9fbndiL3R1dG9yaWFscy9hcmNfYmVoYXZpb3JfZGFuZGlf
+ZGVtb19ub3RlYm9vay5pcHluYj4NCg0KSSBhbHNvIGNyZWF0ZWQgYSBzZXBhcmF0ZSBKdXB5dGVy
+IG5vdGVib29rIHRvIGRlbW9uc3RyYXRlIGhvdyB0aGUgb3B0b2dlbmV0aWNzIHN0aW11bGF0aW9u
+IGRhdGEgaXMgc3RvcmVkIGluIE5XQiBhbmQgaG93IHRvIGFjY2VzcyBpdC4gSSB3b3VsZCBhcHBy
+ZWNpYXRlIHlvdXIgZmVlZGJhY2sgb24gdGhlIG1ldGFkYXRhIGFuZCBkZXNjcmlwdGlvbnMgZm9y
+IGNvcnJlY3RuZXNzLg0KDQogICogICBvcHRvZ2VuZXRpY3MgZXhhbXBsZSBub3RlYm9vazxodHRw
+czovL2dpdGh1Yi5jb20vY2F0YWx5c3RuZXVyby9wYWdhbi1sYWItdG8tbndiL2Jsb2IvNmY1MjFm
+Njg2NzIxN2E3NDhhMmE5YzEwN2NmYmI0N2UxYWRlNTkxYy9zcmMvcGFnYW5fbGFiX3RvX253Yi90
+dXRvcmlhbHMvYXJjX2JlaGF2aW9yX29wdG9nZW5ldGljc19ub3RlYm9vay5pcHluYj4NCg0KSSBh
+bHNvIHVwZGF0ZWQgdGhlIGRvY3VtZW50IHdoaWNoIGRlc2NyaWJlcyBleGFjdGx5IHdoZXJlIGV2
+ZXJ5IGZpZWxkIGZyb20gYSBCQ29udHJvbCAubWF0IGZpbGUgZW5kcyB1cCBpbiB0aGUgY29udmVy
+dGVkIE5XQiBmaWxlLCBob3cgdGhlIE5XQiBleHRlbnNpb24gKG5keC1zdHJ1Y3R1cmVkLWJlaGF2
+aW9yKSB0eXBlcyBhcmUgdXNlZCwgYW5kIGhvdyB0byByZWFkIGRhdGEgYmFjay4NCg0KICAqICAg
+QkNvbnRyb2wgZGF0YSBtYW5pZmVzdDxodHRwczovL2dpdGh1Yi5jb20vY2F0YWx5c3RuZXVyby9w
+YWdhbi1sYWItdG8tbndiL2Jsb2IvNzg4YTYxYTMwMjI2NjMxOTI4MDc1YWNhYzFkYjcyZmRkNzE1
+MDUxNi9zcmMvcGFnYW5fbGFiX3RvX253Yi9hcmNfYmVoYXZpb3Ivbm90ZXMubWQ+DQoNClBhcnQg
+Mi4gUXVlc3Rpb25zL1JlcXVlc3RzIGZvciBFY2VwaHlzIGFuZCBWaWRlbyBFeGFtcGxlIERhdGEg
+Q29udmVyc2lvbg0KDQpJIGFsc28gaGF2ZSBzb21lIHJlcXVlc3RzIHJlZ2FyZGluZyB0aGUgdXBs
+b2FkZWQgZXhhbXBsZSBlcGh5cyBhbmQgdmlkZW8gZGF0YS4NCg0KMS4gUHJvdmlkZSBsYWJlbHMg
+Zm9yICJ0aW0iIHJvd3MNCg0KVGhlIGRhdGlfQCoubWF0IGZpbGUgY29udGFpbnMgYSAidGltIiBt
+YXRyaXggb2Ygc2hhcGUgKDcgocEgbl90cmlhbHMpIHdpdGggNyBldmVudCB0aW1lc3RhbXBzIHBl
+ciB0cmlhbC4gV2UgY3VycmVudGx5IHVzZSBnZW5lcmljIGNvbHVtbiBuYW1lcyBlLmcuICAidGlt
+XzAiIHRocm91Z2ggInRpbV82Ii4NCg0KSWYgdGhlc2UgY29sdW1uIG5hbWVzIGFyZSBjb25zaXN0
+ZW50IGFjcm9zcyBhbGwgc2Vzc2lvbnMsIHdlIHNob3VsZCBhbm5vdGF0ZSB0aGVzZSBldmVudHMg
+YWNjb3JkaW5nIHRvIHdoYXQgdGhleSByZXByZXNlbnQuDQoNCkZvciBleGFtcGxlOg0Kcm93IDA6
+IHRyaWFsX3N0YXJ0DQpyb3cgMTogZml4YXRpb25fb25zZXQNCnJvdyAyOiBzdGltdWx1c19vbnNl
+dA0KDQoyLiBVcGxvYWQgdGhlIGNvcnJlY3QgYmVoYXZpb3IgZmlsZSBmb3IgUDEwMCBleGFtcGxl
+IHNlc3Npb24NCg0KVGhlIGV4YW1wbGUgZm9sZGVyIEVwaHlzX2RhdGFfZXhhbXBsZXMgY29udGFp
+bnM6DQoNCmRhdGFfQFRhc2tTd2l0Y2g0X01hcmlub19QMTAwXzE4MDExMGEubWF0IChiZWhhdmlv
+ciBmaWxlKQ0Kc3Bpa2VzX0BUYXNrU3dpdGNoNF9NYXJpbm9fUDEwMF8xODEwMTBhLm1hdCAoZXBo
+eXMgZmlsZSkNCg0KQ291bGQgeW91IHByb3ZpZGUgZGF0YV9AVGFza1N3aXRjaDRfTWFyaW5vX1Ax
+MDBfMTgxMDEwYS5tYXQgc28gd2UgaGF2ZSBhIGNvcnJlY3RseSBtYXRjaGVkIHByb3RvdHlwZSBz
+ZXNzaW9uPw0KDQozLiBWaWRlbyBzeW5jaHJvbml6YXRpb24NCg0KVGhlIHZpZGVvIGZpbGVzICh2
+aWRlb19AKi5tcDQpIGFyZSB+MjAgZnBzIGFuZCB+MiBob3VycyBsb25nLiBXZSBjdXJyZW50bHkg
+ZGVyaXZlIHRpbWVzdGFtcHMgZnJvbSB0aGUgbm9taW5hbCBmcmFtZSByYXRlIG9ubHkuIFdoaWxl
+IHRoZXNlIGFyZSBleGFtcGxlIGZpbGVzLCBpdCB3b3VsZCBiZSBncmVhdCBpZiB0aGUgY29udmVy
+c2lvbiBwaXBlbGluZSBpbmNsdWRlZCBhIGdlbmVyYWxpemVkIGFwcHJvYWNoIHRoYXQgYWxpZ25z
+IHRoZSB2aWRlbyB0byB0aGUgYmVoYXZpb3IgKG9yIGVwaHlzIHNlc3Npb24pLg0KDQpJcyB0aGVy
+ZSBhIFRUTCBwdWxzZSBvciBzeW5jIHNpZ25hbCBzZW50IGJ5IEJDb250cm9sIGF0IGNhbWVyYSB0
+cmlnZ2VyIC8gZnJhbWUgb25zZXQ/DQpJcyBhIHN5bmMgTEVEIG9yIHZpc3VhbCBtYXJrZXIgZW1i
+ZWRkZWQgaW4gdGhlIHZpZGVvIGZyYW1lPw0KSXMgYW55IHN5bmMgc2lnbmFsIHJlY29yZGVkIGlu
+IHRoZSBTcGlrZUdhZGdldHMgLnJlYyBmaWxlPw0KDQo0LiBTcGlrZUdhZGdldHMgYWNxdWlzaXRp
+b24gZGV2aWNlIG1ldGFkYXRhDQoNClRoZSBzcHlnbGFzcyBkYXRhYmFzZSByZXF1aXJlcyBzcGVj
+aWZpYyBkZXZpY2UgbWV0YWRhdGEsIGNhbiB5b3UgcHJvdmlkZSB0aGlzIGluZm9ybWF0aW9uPw0K
+LSBzeXN0ZW06IFNwaWtlR2FkZ2V0cw0KLSBhbXBsaWZpZXI6ID8gKGUuZy4gIkVJQiAxNiwgTmV1
+cmFseW54IDE2LWNoYW5uZWwgZGlnaXRhbCBlbGVjdHJvbmljIGludGVyZmFjZSBib2FyZCIpDQot
+IGFkY19jaXJjdWl0OiA/ICguZS5nICJPcGVuRXBoeXMgREFRIikNCg0KNS4gQ2FtZXJlIGRldmlj
+ZSBtZXRhZGF0YQ0KDQpUaGUgc3B5Z2xhc3MgZGF0YWJhc2UgYWxzbyByZXF1aXJlcyBzcGVjaWZp
+YyBkZXZpY2UgbWV0YWRhdGEgZm9yIHRoZSBjYW1lcmE7IGNhbiB5b3UgcHJvdmlkZSB0aGlzIGlu
+Zm9ybWF0aW9uPw0KLSBtZXRlcnNfcGVyX3BpeGVsOiA/IChoZWlnaHQgLyB3aWR0aCBvZiBwaXhl
+bCBpbiBtZXRlcnMpDQogIEZvciBleGFtcGxlLCBpZiB0aGUgYmVoYXZpb3JhbCBib3ggaXMgMzAg
+Y20gd2lkZSBhbmQgdGhlIHZpZGVvIGlzIDY0MCBwaXhlbHMgd2lkZToNCiAgbWV0ZXJzX3Blcl9w
+aXhlbCA9IDAuMzAgbSAvIDY0MCBweCCh1iAwLjAwMDQ3IG0vcHgNCi0gbW9kZWw6ID8gKGNhbWVy
+YSBtb2RlbCAvIHBhcnQgbnVtYmVyKQ0KLSBsZW5zOiA/IChsZW5zIG1vZGVsIC8gZm9jYWwgbGVu
+Z3RoKQ0KDQo2LiBSYXcgU3Bpa2VHYWRnZXRzIGRhdGENCg0KV2UgdW5kZXJzdGFuZCB0aGUgcmF3
+IFNwaWtlR2FkZ2V0cyAucmVjIHJlY29yZGluZ3MgYXJlIG9uIGEgc2VwYXJhdGUgYmFja3VwIHN5
+c3RlbSBhdCBQcmluY2V0b24gdGhhdCBpcyBub3QgaW1tZWRpYXRlbHkgZWFzeSB0byBhY2Nlc3Mu
+DQoNCkhvdyBmZWFzaWJsZSB3b3VsZCBpdCBiZSB0byByZXRyaWV2ZSBvbmUgZXhhbXBsZSAucmVj
+IGZpbGUgZnJvbSB0aGUgUHJpbmNldG9uIGJhY2t1cD8NCklmIHRoZSByYXcgZGF0YSBpcyBwZXJt
+YW5lbnRseSBpbmFjY2Vzc2libGUsIHRoZSBzcGlrZS1zb3J0ZWQgLm1hdCBmaWxlcyBhcmUgdGhl
+IGF1dGhvcml0YXRpdmUgc291cmNlIGFuZCB3ZSB3aWxsIG1vZGlmeSB0aGUgZXBoeXMgcGlwZWxp
+bmUgYWNjb3JkaW5nbHkgKG5vIHJhdyB0cmFjZXMpLg0KDQpUaGFuayB5b3UsDQpTem9uamENClRo
+ZSBVbml2ZXJzaXR5IG9mIEVkaW5idXJnaCBpcyBhIGNoYXJpdGFibGUgYm9keSwgcmVnaXN0ZXJl
+ZCBpbiBTY290bGFuZCwgd2l0aCByZWdpc3RyYXRpb24gbnVtYmVyIFNDMDA1MzM2LiBJcyBlIGJ1
+aWRoZWFubiBjYXJ0aGFubmFpcyBhIHRooa8gYW5uIGFuIE9pbHRoaWdoIERoqLRuIKioaWRlYW5u
+LCBjbKikcmFpY2h0ZSBhbiBBbGJhLCCopGlyZWFtaCBjbKikcmFpZGggU0MwMDUzMzYuDQo=
+--_000_DU6PR05MB11659A89CB57BF78E17F48974F32E2DU6PR05MB11659eu_
+Content-Type: text/html; charset="gb2312"
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dgb2312">
+</head>
+<body>
+<div dir=3D"ltr" style=3D"font-family: Aptos, Arial, Helvetica, sans-serif;=
+ font-size: 12pt; color: rgb(0, 0, 0);">
+<br>
+</div>
+<div dir=3D"ltr" style=3D"font-family: Aptos, Arial, Helvetica, sans-serif;=
+ font-size: 12pt; color: rgb(0, 0, 0);">
+<br>
+</div>
+<div id=3D"mail-editor-reference-message-container">
+<div dir=3D"ltr" class=3D"ms-outlook-mobile-reference-message skipProofing"=
+></div>
+<div class=3D"ms-outlook-mobile-reference-message skipProofing" style=3D"te=
+xt-align: left; padding: 3pt 0in 0in; border-width: 1pt medium medium; bord=
+er-style: solid none none; border-color: rgb(181, 196, 223) currentcolor cu=
+rrentcolor; font-family: Aptos; font-size: 12pt; color: black;">
+<b>From: </b>Anna Szonja Weigl &lt;wszonja@gmail.com&gt;<br>
+<b>Date: </b>Tuesday, 14 April 2026 at 12:03<br>
+<b>To: </b>Marino Pagan &lt;mpagan@ed.ac.uk&gt;, Elise Chang &lt;E.C.W.Chan=
+g@sms.ed.ac.uk&gt;, Alessandra Trapani &lt;alessandra.trapani@catalystneuro=
+.com&gt;, Ben Dichter &lt;ben.dichter@catalystneuro.com&gt;<br>
+<b>Subject: </b>Pagan Lab NWB Conversion =A1=AA Progress Update and Feedbac=
+k Requests<br>
+<br>
+</div>
+<div dir=3D"ltr" class=3D"ms-outlook-mobile-reference-message skipProofing"=
+>Hi Marino, Elise,<br>
+<br>
+I hope you're doing well. I wanted to provide a long update on the BControl=
+ and example data conversion progress, and ask for feedback.<br>
+<br>
+<span style=3D"font-size: 18px;"><b>Part 1. BControl Conversion Progress Up=
+date</b></span><br>
+<br>
+<b>Summary:</b><br>
+<br>
+We have converted <b>16,113</b>&nbsp;behavioral sessions from BControl .mat=
+ files to NWB format and uploaded them to DANDI at
+<a href=3D"https://dandiarchive.org/dandiset/001550/draft" originalsrc=3D"h=
+ttps://dandiarchive.org/dandiset/001550/draft" data-outlook-id=3D"0bb9383d-=
+b201-4224-857d-c1eeb1576962">
+dandiarchive.org/dandiset/001550</a>.<br>
+<br>
+TaskSwitch4: 13,777<br>
+TaskSwitch6: 1,548<br>
+ProAnti3Marino: 173<br>
+TaskSwitch2: 201<br>
+TaskSwitch3: 111<br>
+TaskSwitch4double: 96<br>
+TaskSwitch4new: 86<br>
+PBups: 73<br>
+TaskSwitch4repeat: 13<br>
+ProAnti3: 16<br>
+TaskSwitch: 19</div>
+<ul dir=3D"ltr">
+<li dir=3D"ltr"><a href=3D"https://github.com/catalystneuro/pagan-lab-to-nw=
+b/blob/b0ab3fab189d7ff619c4944fbb116ec8f2fb8447/src/pagan_lab_to_nwb/tutori=
+als/arc_behavior_dandi_demo_notebook.ipynb" originalsrc=3D"https://github.c=
+om/catalystneuro/pagan-lab-to-nwb/blob/b0ab3fab189d7ff619c4944fbb116ec8f2fb=
+8447/src/pagan_lab_to_nwb/tutorials/arc_behavior_dandi_demo_notebook.ipynb"=
+ data-outlook-id=3D"0512e659-7ff9-4d9f-b0d3-13b799490465">example
+ notebook</a></li></ul>
+<div dir=3D"ltr" class=3D"ms-outlook-mobile-reference-message skipProofing"=
+>I also created a separate Jupyter notebook to demonstrate how the optogene=
+tics stimulation data is stored in NWB and how to access it. I would apprec=
+iate your feedback on the metadata and
+ descriptions for correctness.</div>
+<ul dir=3D"ltr">
+<li dir=3D"ltr"><a href=3D"https://github.com/catalystneuro/pagan-lab-to-nw=
+b/blob/6f521f6867217a748a2a9c107cfbb47e1ade591c/src/pagan_lab_to_nwb/tutori=
+als/arc_behavior_optogenetics_notebook.ipynb" originalsrc=3D"https://github=
+.com/catalystneuro/pagan-lab-to-nwb/blob/6f521f6867217a748a2a9c107cfbb47e1a=
+de591c/src/pagan_lab_to_nwb/tutorials/arc_behavior_optogenetics_notebook.ip=
+ynb" data-outlook-id=3D"680d1de9-8b67-4fe3-b2f9-515cbfe76890">optogenetics
+ example notebook</a></li></ul>
+<div dir=3D"ltr" class=3D"ms-outlook-mobile-reference-message skipProofing"=
+>I also updated the document which describes exactly where every field from=
+ a BControl .mat file ends up in the converted NWB file, how the NWB extens=
+ion (ndx-structured-behavior) types
+ are used, and how to read data back.</div>
+<ul dir=3D"ltr">
+<li dir=3D"ltr"><a href=3D"https://github.com/catalystneuro/pagan-lab-to-nw=
+b/blob/788a61a30226631928075acac1db72fdd7150516/src/pagan_lab_to_nwb/arc_be=
+havior/notes.md" originalsrc=3D"https://github.com/catalystneuro/pagan-lab-=
+to-nwb/blob/788a61a30226631928075acac1db72fdd7150516/src/pagan_lab_to_nwb/a=
+rc_behavior/notes.md" data-outlook-id=3D"c3796780-1b81-4149-93b5-8227cb8182=
+ac">BControl
+ data manifest</a></li></ul>
+<div dir=3D"ltr" class=3D"ms-outlook-mobile-reference-message skipProofing"=
+ style=3D"font-size: 18px;">
+Part 2. Questions/Requests for Ecephys and Video Example Data Conversion&nb=
+sp;</div>
+<div dir=3D"ltr" class=3D"ms-outlook-mobile-reference-message skipProofing"=
+><br>
+</div>
+<div dir=3D"ltr" class=3D"ms-outlook-mobile-reference-message skipProofing"=
+>I also have some requests regarding the uploaded example ephys and video d=
+ata.<br>
+<br>
+<b>1. Provide labels for &quot;tim&quot; rows</b><br>
+<br>
+The dati_@*.mat file contains a &quot;tim&quot; matrix of shape (7 =A1=C1 n=
+_trials) with 7 event timestamps per trial. We currently use generic column=
+ names e.g. &nbsp;&quot;tim_0&quot; through &quot;tim_6&quot;.<br>
+<br>
+If these column names are consistent across all sessions, we should annotat=
+e these events according to what they represent.<br>
+<br>
+For example:<br>
+row 0: trial_start<br>
+row 1: fixation_onset<br>
+row 2: stimulus_onset<br>
+<br>
+<b>2. Upload the correct behavior file for P100 example session</b><br>
+<br>
+The example folder Ephys_data_examples contains:<br>
+<br>
+data_@TaskSwitch4_Marino_P100_180110a.mat (behavior file)<br>
+spikes_@TaskSwitch4_Marino_P100_181010a.mat (ephys file)<br>
+<br>
+Could you provide data_@TaskSwitch4_Marino_P100_181010a.mat so we have a co=
+rrectly matched prototype session?<br>
+<br>
+<b>3. Video synchronization</b><br>
+<br>
+The video files (video_@*.mp4) are ~20 fps and ~2 hours long. We currently =
+derive timestamps from the nominal frame rate only. While these are example=
+ files, it would be great if the conversion pipeline included a generalized=
+ approach that aligns the video
+ to the behavior (or ephys session). &nbsp;<br>
+<br>
+Is there a TTL pulse or sync signal sent by BControl at camera trigger / fr=
+ame onset?<br>
+Is a sync LED or visual marker embedded in the video frame?<br>
+Is any sync signal recorded in the SpikeGadgets .rec file?<br>
+<br>
+<b>4. SpikeGadgets acquisition device metadata</b><br>
+<br>
+The spyglass database requires specific device metadata, can you provide th=
+is information? &nbsp;<br>
+- <b>system</b>: SpikeGadgets</div>
+<div dir=3D"ltr" class=3D"ms-outlook-mobile-reference-message skipProofing"=
+>- <b>amplifier</b>: ? (e.g.&nbsp;&quot;EIB 16, Neuralynx 16-channel digita=
+l electronic interface board&quot;)</div>
+<div dir=3D"ltr" class=3D"ms-outlook-mobile-reference-message skipProofing"=
+>- <b>adc_circuit</b>: ? (.e.g&nbsp;&quot;OpenEphys DAQ&quot;)</div>
+<div dir=3D"ltr" class=3D"ms-outlook-mobile-reference-message skipProofing"=
+><br>
+<b>5. Camere device metadata</b></div>
+<div dir=3D"ltr" class=3D"ms-outlook-mobile-reference-message skipProofing"=
+><br>
+</div>
+<div dir=3D"ltr" class=3D"ms-outlook-mobile-reference-message skipProofing"=
+>The spyglass database also requires specific device metadata for the camer=
+a; can you provide this information?</div>
+<div dir=3D"ltr" class=3D"ms-outlook-mobile-reference-message skipProofing"=
+>- <b>meters_per_pixel</b>: ? (height / width of pixel in meters)</div>
+<div dir=3D"ltr" class=3D"ms-outlook-mobile-reference-message skipProofing"=
+>&nbsp; For example, if the behavioral box is 30 cm wide and the video is 6=
+40 pixels wide:<br>
+&nbsp; meters_per_pixel =3D 0.30 m / 640 px =A1=D6 0.00047 m/px</div>
+<div dir=3D"ltr" class=3D"ms-outlook-mobile-reference-message skipProofing"=
+>- <b>model</b>: ? (camera model / part number)</div>
+<div dir=3D"ltr" class=3D"ms-outlook-mobile-reference-message skipProofing"=
+>- <b>lens</b>: ? (lens model / focal length)</div>
+<div dir=3D"ltr" class=3D"ms-outlook-mobile-reference-message skipProofing"=
+><br>
+</div>
+<div dir=3D"ltr" class=3D"ms-outlook-mobile-reference-message skipProofing"=
+><b>6. Raw SpikeGadgets data</b></div>
+<div dir=3D"ltr" class=3D"ms-outlook-mobile-reference-message skipProofing"=
+ style=3D"font-family: Helvetica, Arial, freesans, sans-serif; font-size: 1=
+3px; color: rgb(188, 190, 196);">
+<span style=3D"background-color: rgb(30, 31, 34);"><br>
+</span></div>
+<div dir=3D"ltr" class=3D"ms-outlook-mobile-reference-message skipProofing"=
+>We understand the raw SpikeGadgets .rec recordings are on a separate backu=
+p system at Princeton that is not immediately easy to access.<br>
+<br>
+How feasible would it be to retrieve one example .rec file from the Princet=
+on backup?<br>
+If the raw data is permanently inaccessible, the spike-sorted .mat files ar=
+e the authoritative source and we will modify the ephys pipeline accordingl=
+y (no raw traces).</div>
+<div dir=3D"ltr" class=3D"ms-outlook-mobile-reference-message skipProofing"=
+><br>
+</div>
+<div dir=3D"ltr" class=3D"ms-outlook-mobile-reference-message skipProofing"=
+>Thank you,<br>
+Szonja</div>
+</div>
+The University of Edinburgh is a charitable body, registered in Scotland, w=
+ith registration number SC005336. Is e buidheann carthannais a th=A1=AF ann=
+ an Oilthigh Dh=A8=B4n &Egrave;ideann, cl=A8=A4raichte an Alba, =A8=A4iream=
+h cl=A8=A4raidh SC005336.
+</body>
+</html>
+
+--_000_DU6PR05MB11659A89CB57BF78E17F48974F32E2DU6PR05MB11659eu_--

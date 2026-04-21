@@ -16,7 +16,7 @@ def dataset_to_nwb(
     *,
     data_dir_path: DirectoryPath,
     output_dir_path: DirectoryPath,
-    task_params_file_path: FilePath,
+    task_params_file_path: FilePath | None = None,
     glob_pattern: str = "data_@*.mat",
     stub_test: bool = False,
     overwrite: bool = True,
@@ -85,9 +85,10 @@ def dataset_to_nwb(
 if __name__ == "__main__":
     # Example usage (adjust paths):
     # Directory containing the BControl .mat files and Protocol_code folder
-    data_dir = Path("/Volumes/T9/data/Pagan_latest_data_share")
     # Directory where the NWB files will be saved
-    output_dir = Path("/Users/weian/data/Pagan_nwbfiles_to_upload/001550")
+
+    data_dir = Path("/media/mpagan/Data1/Marino")                                       
+    output_dir = Path("/home/mpagan/nwb_output")  
 
     # Canonical YAML lives in the repo at arc_behavior/task_switch6_params.yaml
     task_yaml = _TASK_PARAMS_YAML_PATH
